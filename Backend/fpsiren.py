@@ -50,7 +50,8 @@ class FoodPosion:
 
         for fp_city, fp_score in zip(fp_city_list, fp_score_list):
             self.fp_city_score_dic[fp_city] = fp_score
-        print(self.fp_city_score_dic)
+        
+        return {self.city_name: self.fp_city_score_dic[self.city_name]}
 
         # html_fp_score_list = soup.findAll("td")
         # print(html_fp_score_list[10].getText() == "\xa0")
@@ -59,8 +60,10 @@ class FoodPosion:
         # print(type(clean_text))
 
 
-FP = FoodPosion()
-# 'today','tomorrow','afterTomorrow'
-FP.set_data("today", "서울시")
-FP.get_data()
+
+if __name__ == "__main__":
+    FP = FoodPosion()
+    # 'today','tomorrow','afterTomorrow'
+    FP.set_data("today", "서울시")
+    FP.get_data()
 # point_today =
