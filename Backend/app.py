@@ -27,7 +27,7 @@ def get_fpsiren_data():
     user_city_name = request.args.get("userCityName")
     day = request.args.get("day")
     fp.set_info(day, user_city_name)
-    fp.get_data()
+    fp.get_fpscore_data()
     if not user_city_name in fp.fp_bigcity_average_score_dic.keys() and user_city_name != "All":
         return "No userCityName", 400
     # 시티 리스트들 보내주기
@@ -46,7 +46,8 @@ def get_fpsiren_my_data():
     user_city_name = request.args.get("userCityName")
     day = request.args.get("day")
     fp.set_info(day, user_city_name)
-    fp.get_data()
+    fp.get_fpscore_data()
+    fp.get_my_city_data(user_city_name)
     if not user_city_name in fp.fp_city_score_dic.keys():
         return "No userCityName", 400
     # json 형식 식중독 지수
