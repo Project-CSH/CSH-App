@@ -58,7 +58,9 @@ class FoodPosion:
         # clean_text = re.sub(self.CLEANR, '', res.text)
         # print(type(clean_text))
 
+
 if n
+
 FP = FoodPosion()
 # 'today','tomorrow','afterTomorrow'
 FP.set_data("today", "서울시")
