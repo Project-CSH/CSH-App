@@ -27,7 +27,10 @@ def get_fpsiren_data():
     user_city_name = request.args.get("userCityName")
     day = request.args.get("day")
     fp.set_data(day, user_city_name)
-    return fp.get_data(), 200
+    fp.get_data()
+    return {
+        fp.city_name: fp.fp_city_score_dic[fp.city_name]
+    } if user_city_name != "All" else fp.fp_allcity_average_score_dic, 200
 
 
 @app.route("/sign-up", methods=["POST"])
