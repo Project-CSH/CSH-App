@@ -32,6 +32,13 @@ export const fetchUser = (setLoc, setList) => {
         }).catch(e=>console.log(e));
 }
 
+
+/**
+ * 하위 행정구역 식중독 지수 요청
+ * @param {String} sendLocation
+ * @param {Array} setChildList
+ * @returns 
+ *  */
 export const fetchCildCity = (sendLocation,setChildList) =>{
     console.log(sendLocation);
     let _array = [];
