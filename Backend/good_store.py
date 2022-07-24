@@ -23,7 +23,7 @@ def csv_read(filename):
             continue            
         name = line[store_name_index]
         address = line[address_index]
-        print(name," : ",address)
+        #print(name," : ",address)
         store_dict[name] = address
         
     
