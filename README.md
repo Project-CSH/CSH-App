@@ -4,7 +4,6 @@
 
 
 <h2> Requirements </h2>
-<br>
 - Python 3.*
 <br>
 - Node.js 16.16.0 LTS
