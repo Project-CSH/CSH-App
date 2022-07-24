@@ -24,7 +24,9 @@ class FoodPosion:
         )
         self.CLEANR = re.compile("<.*?>|{.*?}")  # html parsing용 html Tag 제거 정규식
         self.fp_city_score_dic = defaultdict(int)
-        self.fp_allcity_average_score_dic = defaultdict(int)
+        self.fp_bigcity_average_score_dic = defaultdict(int)
+        self.fp_mycity_dic = defaultdict(dict)
+        self.fp_bigcity_in_city_dic = defaultdict(dict)
         self.fp_loc_dic = {
             "강원도": [
                 "춘천시",
@@ -194,7 +196,7 @@ class FoodPosion:
             "세종시": ["세종시"],
         }
 
-    def set_data(self, day_code, city_name):
+    def set_info(self, day_code, city_name):
         self.day_code = day_code
         self.city_name = city_name
         KST = pytz.timezone("Asia/Seoul")
@@ -206,7 +208,7 @@ class FoodPosion:
         else:  # case 2 18:00 발표
             self.time_table_obj = {"today": 1, "tomorrow": 2, "afterTomorrow": 3}
 
-    def get_data(self):
+    def get_fpscore_data(self):
         request_url = f"{self.fp_data_base_url}&point={self.time_table_obj[self.day_code]}"
         soup = BeautifulSoup(requests.get(request_url).text, "html.parser")
         fp_city_list = [html_fp_city.text for html_fp_city in soup.findAll("th", {"scope": "row"})]
@@ -217,17 +219,26 @@ class FoodPosion:
             for html_fp_score in soup.findAll("td")
             if html_fp_score not in {fp_score_null.find("td")}
         ]
+        # 각 시별로 식중독 수치 구하기
         for fp_city, fp_score in zip(fp_city_list, fp_score_list):
             self.fp_city_score_dic[fp_city] = fp_score
-    
-        for big_city, fp_city_list in self.fp_loc_dic.items():
+        # 광역시, 도 , 특별시 평균 식중독 수치 구하기
+        for bigcity, fp_city_list in self.fp_loc_dic.items():
             for fp_city in fp_city_list:
-                # print(self.fp_allcity_average_score_dic[big_city], self.fp_city_score_dic[fp_city])
-                self.fp_allcity_average_score_dic[big_city] += self.fp_city_score_dic[fp_city]
-            self.fp_allcity_average_score_dic[big_city] = round(
-                self.fp_allcity_average_score_dic[big_city] / len(fp_city_list)
+                # print(self.fp_bigcity_average_score_dic[big_city], self.fp_city_score_dic[fp_city])
+                self.fp_bigcity_average_score_dic[bigcity] += self.fp_city_score_dic[fp_city]
+                self.fp_bigcity_in_city_dic[bigcity][fp_city] = self.fp_city_score_dic[fp_city]
+            self.fp_bigcity_average_score_dic[bigcity] = round(
+                self.fp_bigcity_average_score_dic[bigcity] / len(fp_city_list)
             )
-        return {self.city_name: self.fp_city_score_dic[self.city_name]}
+
+    def get_my_city_data(self, user_city_name):
+        self.fp_mycity_dic["fp_score"] = self.fp_city_score_dic[user_city_name]
+        self.fp_mycity_dic["fp_bst_virus"] = "살모넬라균"
+        self.fp_mycity_dic["danger_food_lst"] = ["고기", "가공육", "계란", "닭고기", "샐러드", "마요네즈"]
+        # {fp_score : 12, fp_bst_virus: '',danger_food_lst: []}
+        # 현재 위치 데이터에 대한 위험 알림판
+        # self.fp[big_city] = defaultdict(dict)
 
         # html_fp_score_list = soup.findAll("td")
         # print(html_fp_score_list[10].getText() == "\xa0")
@@ -241,7 +252,7 @@ if __name__ == "__main__":
     # 'today','tomorrow','afterTomorrow'
     FP.set_data("today", "서울시")
 
-    FP.get_data()
+    FP.get_fpscore_data()
     # print(FP.fp_city_score_dic)
-    #print(FP.fp_allcity_average_score_dic)
+    # print(FP.fp_allcity_average_score_dic)
 # point_today =
