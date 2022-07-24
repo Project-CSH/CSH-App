@@ -68,16 +68,13 @@ def barcode_tracking():
 @app.route("/store_list", methods=["POST"])
 def good_store():
     req = request.json
-    location = req["location"]  # 강남
+    location = req["location"]
 
     store_dict = get_store_list(location)
-    store_names = list(store_dict.keys())
-    print(store_names)
-    response = {"상호": store_names[0], "주소": store_dict[store_names[0]]}
-    # return jsonify(response), 200
+    
     return jsonify(store_dict), 200
 
 
 if __name__ == "__main__":
 
-    app.run(host="0.0.0.0", debug=True, port=3000)
+    app.run(host="0.0.0.0", debug=True, port=5000)
