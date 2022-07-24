@@ -1,12 +1,14 @@
 import csv
-import time
+
+
 def csv_read(filename):
 
-    store_dict = {}
-    f = open(filename,'r',encoding='cp949')
+    all_store_dict = {}
+    f = open(filename,'r',encoding='utf-8')
     rdr = csv.reader(f)
-    
+    address_index = None
     firstLine = False
+    
     for line in rdr:
         if firstLine == False:
             firstLine = True
@@ -16,31 +18,37 @@ def csv_read(filename):
                     store_name_index = line.index(element)
                     continue
                 
-                if '주소' in element or ('소재지' in element and '전화번호' not in element):
-                    address_index = line.index(element)        
+                if address_index == None:
+                    if '주소' in element or ('소재지' in element and '전화번호' not in element):
+                        
+                        address_index = line.index(element)        
+                        continue
+                if '영업상태명' in element:
+                    status_index = line.index(element)
                     continue
-            
-            continue            
+                
+            continue
+        if line[status_index] == '폐업':
+            continue
         name = line[store_name_index]
         address = line[address_index]
-        #print(name," : ",address)
-        store_dict[name] = address
+        
+        all_store_dict[name] = address
         
     
     f.close()
-    return store_dict
+    return all_store_dict
 
 def get_store_list(location):
     
-    if location == '강남':
-        filename = '서울특별시 강남구_모범음식점 지정 현황_20211223.csv'
-        store_dict = csv_read(filename)
-
-    if location == '원주':
-        filename = '강원도 원주시_모범음식점 정보_20210831.csv'
-        store_dict = csv_read(filename)
+    filename = '모범음식점_전체.csv'
+    all_store_dict = csv_read(filename)
+    store_dict = {}
+    for name, address in all_store_dict.items():
+        if location in address:
+            store_dict[name] = address
 
     return store_dict
 
 if __name__=='__main__':
-    get_store_list('강남')
+    get_store_list('강남구')
