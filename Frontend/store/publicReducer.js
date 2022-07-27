@@ -3,11 +3,11 @@ const SETPUBLIC = 'SETPUBLIC' ;
 const SETPUBLICOUT = 'SETPUBLICOUT';
 // 액션 생성 함수 정의
 export const setValue = (value) => ({ type: SETPUBLIC ,value}) ;
-export const setValueOut = () => ({ type: SETPUBLICOUT}) ;
+export const setValueOut = () => ({ type: SETPUBLICOUT,value:false}) ;
 
 // 전역 상태
 const initialState = {
-	value: 0,
+	value: true,
 }
 
 //상태 값 변경을 위한 리듀서
@@ -24,7 +24,7 @@ export default function publicReducer(state = initialState, action) {
 		case SETPUBLICOUT:{
 			return{
 				...state,
-				value : 0
+				value : action.value
 			}
 		}
 
