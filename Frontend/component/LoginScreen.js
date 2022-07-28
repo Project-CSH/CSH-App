@@ -29,7 +29,7 @@ const LoginScreen = ({}) => {
         // }else{
         //     onToggleSnackBar();
         // }
-        dispatch(setValue(1));
+        dispatch(setValue(true));
     }
 
     return (
