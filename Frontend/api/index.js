@@ -1,6 +1,7 @@
-const IP = "http://172.20.10.6";
-const PORT = ":5000";
+const IP = 'http://192.168.0.5';
+const PORT = ':3000';
 let USER_URL = `${IP}${PORT}/store_list`;
+
 
 /**
  * 모범식당 데이터 호출 함수
@@ -10,6 +11,8 @@ let USER_URL = `${IP}${PORT}/store_list`;
  *  */
 
 export const fetchUser = (setLoc, setList) => {
+    console.log("----")
+    console.log(setLoc)
     let _array = [];
     fetch(USER_URL, {
         method: "POST",
@@ -29,6 +32,7 @@ export const fetchUser = (setLoc, setList) => {
                 })
             }
             setList(_array);
+            console.log(_array)
         }).catch(e=>console.log(e));
 }
 
@@ -42,7 +46,7 @@ export const fetchUser = (setLoc, setList) => {
 export const fetchCildCity = (sendLocation,setChildList) =>{
     console.log(sendLocation);
     let _array = [];
-
+    let _count = 0;
     let CHILD_CITY = `${IP}${PORT}/fpsiren?userCityName=${sendLocation}&day=today`;
     fetch(CHILD_CITY)
         .then((response) => response.json())
@@ -50,9 +54,11 @@ export const fetchCildCity = (sendLocation,setChildList) =>{
             for (const [key, value] of Object.entries(data)) {
                 console.log(`${key}: ${value}`);
                 _array.push({
+                    id:_count,
                     title:key,
                     jisu:value
                 })
+                _count++;
               }
               setChildList(_array);
         });
@@ -68,7 +74,7 @@ export const fetchMapGaguer = (geo,setGage,day,setVirus='') => {
     // "tomorrow","afterTomorrow"
     //  {fp_score : 12, fp_bst_virus: '',danger_food_lst: []}
     geo = '서울시'
-    let GAGERURL = `http://172.20.10.6:5000/fpsirenMy?userCityName=${geo}&day=${day}`;
+    let GAGERURL = `${IP}${PORT}/fpsirenMy?userCityName=${geo}&day=${day}`;
     fetch(GAGERURL)
         .then((response) => response.json())
         .then((data) => {

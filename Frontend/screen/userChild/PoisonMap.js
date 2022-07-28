@@ -8,6 +8,7 @@ import { ALL_LOCATION } from '../../dummy';
 import RNSpeedometer from 'react-native-speedometer'
 import { fetchBigCity, fetchCildCity, fetchMapGaguer } from '../../api';
 
+console.disableYellowBox = true;
 
 /* 
 * 관심	0 ≤ P ＜ 55
@@ -15,6 +16,7 @@ import { fetchBigCity, fetchCildCity, fetchMapGaguer } from '../../api';
 * 경고	71 ≤ P ＜ 86
 * 위험	86 ≤ P ≤ 100 
 */
+
 const LOCATIONLENGTH = 17;
 let _array=[];
 const LOCATION_GEN = () => {
@@ -164,10 +166,14 @@ const PoisonMap = () => {
             showsUserLocation={true}
             loadingEnabled={true}
             style={styles.map} region={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-                latitudeDelta: 3,
-                longitudeDelta: 3,
+                latitude: 127,
+                longitude: 37,
+                latitudeDelta: 10.04,
+                longitudeDelta: 10.05,
+                // latitude: location.latitude,
+                // longitude: location.longitude,
+                // latitudeDelta: 3,
+                // longitudeDelta: 3,
             }}>
                 <GeoGen modal={onOpen} setSendLocation={setSendLocation}/>
                 {/* <Marker coordinate={{
