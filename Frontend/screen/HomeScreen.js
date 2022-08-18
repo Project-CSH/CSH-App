@@ -8,7 +8,7 @@ const HomeScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
 
     const isLogedout = () =>{
-        dispatch(setValue(0));
+        // dispatch(setValue(0));
     }
     return (
         <SafeAreaView style={styles.container}>
