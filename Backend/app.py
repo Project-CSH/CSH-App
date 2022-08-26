@@ -1,9 +1,10 @@
-from flask import Flask, jsonify, request
-import requests
-from bs4 import BeautifulSoup
+from flask import Flask, jsonify, request, render_template
 from expiry_tracker import tracker
 from good_store import get_store_list
 from fpsiren import FoodPosion
+from board import get_board_list, board_write
+from datetime import timedelta
+
 
 
 app = Flask(__name__)
@@ -13,7 +14,8 @@ app.config["JSON_AS_ASCII"] = False
 
 @app.route("/", methods=["GET"])
 def welcome():
-    return "Welcome to the CSH API!"
+    return render_template("welcome.html")
+    
 
 
 @app.route("/hello", methods=["GET"])
@@ -94,6 +96,26 @@ def good_store():
     store_dict = get_store_list(location)
     
     return jsonify(store_dict), 200
+
+@app.route("/board-write-view", methods=["GET"])
+def board_write_view():
+    return render_template("board_write.html")
+
+@app.route("/board-write", methods=["POST"])
+def write_board():
+    req = request.form
+    print(req)
+    title = req["title"]
+    content = req["content"]
+    writer = req["writer"]
+    board_write(title, content, writer)
+    return "글 작성 완료 <br><a href=/board-list> 조회하기 </a>", 200
+
+@app.route("/board-list", methods=["GET"])
+def view_board_list():
+    board_list = get_board_list()
+    
+    return render_template("board_list.html", board_list=board_list)
 
 
 if __name__ == "__main__":
