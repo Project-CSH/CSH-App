@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:float="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>게시판</title>
+    <style>
+        table {
+            width: 100%;
+            border-top: 1px solid #444444;
+            border-collapse: collapse;
+        }
+        th, td {
+            border-bottom: 1px solid #444444;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #bbdefb;
+        }
+        td {
+            background-color: #e3f2fd;
+        }
+</style>
+</head>
+ 
+<body>
+    <p>
+        <h1> Hello {{name}} ! </h1>
+    </p>
+ 
+    <table class="table">
+        <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>내용</th>
+            <th>작성자</th>
+            <th>작성시간</th>
+            <th>조회수</th>
+        </tr>
+        {% for obj in board_list%}
+        <tbody>
+            <tr>
+                <td>{{obj[0]}}</td> 
+                <td>{{obj[1]}}</td> 
+                <td>{{obj[2]}}</td> 
+                <td>{{obj[5]}}</td> 
+                <td>{{obj[3]}}</td> 
+                <td>{{obj[4]}}</td> 
+                
+                
+                
+                <td>
+                    <a href="/board/{{obj[0]}}/edit">수정</a>
+                    <a href="/board/{{obj[0]}}/delete">삭제</a>
+                </td>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+</body>
+ 
+</html>
