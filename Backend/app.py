@@ -4,6 +4,7 @@ from good_store import get_store_list
 from fpsiren import FoodPosion
 from board import get_board_list, board_write
 from datetime import timedelta
+from register import signup, login
 
 
 
@@ -96,6 +97,23 @@ def good_store():
     store_dict = get_store_list(location)
     
     return jsonify(store_dict), 200
+
+@app.route("/user-register-view", methods=["GET"])
+def user_register_view():
+    return render_template("user_register.html")
+
+@app.route("/user-register", methods=["POST"])
+def user_signup():
+    req = request.form
+    user_id = req["id"]
+    user_name = req["name"]
+    user_pw = req["password"]
+    user_belong = req["belong"]
+    user_role = req["role"]
+    signup(user_id, user_name, user_belong, user_pw, user_role)
+    return render_template("welcome.html")
+
+
 
 @app.route("/board-write-view", methods=["GET"])
 def board_write_view():
