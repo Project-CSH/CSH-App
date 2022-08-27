@@ -1,3 +1,11 @@
+/**
+* 청신한 앱 프론트앤드 작업
+* 
+* @author JungMin-Kan
+* @version 1.0,
+* @see None
+*/
+
 import { Provider as PaperProvider } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import MainStack from './navigator/MainStack'

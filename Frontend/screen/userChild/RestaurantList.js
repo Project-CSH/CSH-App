@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, StatusBar, View, FlatList, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, SafeAreaView, StatusBar, ActivityIndicator, View, FlatList, ScrollView, TouchableOpacity } from 'react-native';
 import { Card, Divider, Paragraph, Text, Button } from 'react-native-paper';
 import * as Location from 'expo-location';
 import { fetchUser } from '../../api';
@@ -90,7 +90,7 @@ const RestaurantList = () => {
       let geocode = await Location.reverseGeocodeAsync({ latitude, longitude })
       console.log(geocode);
       // // geocode[0].region =="서울특별시" ? setLoc = geocode[0].district : setLoc = geocode[0].region
-      setLoc = "강남";
+      setLoc = "세종시";
       fetchUser(setLoc,setList);
       console.log(list);
   })();
@@ -102,6 +102,7 @@ const RestaurantList = () => {
       <Text style={{ fontSize: 30, fontWeight: 'bold', padding: 10 }}>행정구역 모범음식점</Text>
       <Header />
       <FlatList
+        ListEmptyComponent={()=> <ActivityIndicator style={{ position:StyleSheet.absoluteFill, top: 200 }} size="large" color="#00ff00" /> }
         data={list}
         renderItem={renderItem}
         keyExtractor={item => item.id}
