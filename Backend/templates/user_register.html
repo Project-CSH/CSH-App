@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/test.css') }}"
+    />
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/test.js') }}"></script>
+</head>
+<body>
+    <div class="container right-panel-active">
+<!-- Sign Up -->
+    <div class="container__form container--signup">
+        <form action="/user-register" class="form" id="form1" method="post">
+        <h2 class="form__title">Sign Up</h2>
+        <input type="text" placeholder="ID" name="id" class="input" required>
+        <input type="text" placeholder="이름" name="name" class="input" required>
+        <input type="password" placeholder="비밀번호" name="password" class="input" required>
+        <input type="text" placeholder="소속" name="belong" class="input">
+        <label><input type="radio" id="store" name="role" value="store" required>음식점</label>
+        <label><input type="radio" id="store" name="role" value="customer">소비자</label>
+        <label><input type="radio" id="store" name="role" value="officer">공공기관</label>
+        <button class="btn">Sign Up</button>
+        </form>
+    </div>
+
+    <!-- Sign In -->
+    <div class="container__form container--signin">
+        <form action="#" class="form" id="form2">
+        <h2 class="form__title">Sign In</h2>
+        <input type="email" placeholder="Email" class="input" />
+        <input type="password" placeholder="Password" class="input" />
+        <a href="#" class="link">Forgot your password?</a>
+        <button class="btn">Sign In</button>
+        </form>
+    </div>
+
+    <!-- Overlay -->
+    <div class="container__overlay">
+        <div class="overlay">
+        <div class="overlay__panel overlay--left">
+            <button class="btn" id="signIn">Sign In</button>
+        </div>
+        <div class="overlay__panel overlay--right">
+            <button class="btn" id="signUp">Sign Up</button>
+        </div>
+        </div>
+    </div>
+    </div>
+</body>
+</html>
