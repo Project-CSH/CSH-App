@@ -1,18 +1,16 @@
 from flask import Flask, jsonify, request, render_template
-from expiry_tracker import tracker
 from good_store import get_store_list
 from fpsiren import FoodPosion
 from board import get_board_list, board_write
-from datetime import timedelta
-from register import signup, login
-
-
+from register import signup
+from flask_cors import CORS
+from inventory_manage import InventoryManage
 
 app = Flask(__name__)
 
 app.config["JSON_AS_ASCII"] = False
 
-
+CORS(app)
 @app.route("/", methods=["GET"])
 def welcome():
     return render_template("welcome.html")
@@ -70,23 +68,36 @@ def sign_up():
     return jsonify(response), 200
 
 
-@app.route("/barcode_tracking", methods=["POST"])
-def barcode_tracking():
+# @app.route("/barcode_tracking", methods=["POST"])
+# def barcode_tracking():
 
-    item = request.json
-    brcd_num = item["bcd_number"]
-    keyId = "080fb9ab8f0443f691e4"
-    product_name, kindof, expiry_date = tracker(keyId, brcd_num)
-    if product_name == 0 and kindof == 0 and expiry_date == 0:
-        return jsonify({"message": "존재하지 않는 바코드입니다."}), 400
+#     item = request.json
+#     brcd_num = item["bcd_number"]
+#     keyId = "080fb9ab8f0443f691e4"
+#     product_name, kindof, expiry_date = tracker(keyId, brcd_num)
+#     if product_name == 0 and kindof == 0 and expiry_date == 0:
+#         return jsonify({"message": "존재하지 않는 바코드입니다."}), 400
 
-    response = {
-        "barcode_nubmer": brcd_num,
-        "product name": product_name,
-        "종류": kindof,
-        "expiry_date": expiry_date,
-    }
-    return jsonify(response), 200
+#     response = {
+#         "barcode_nubmer": brcd_num,
+#         "product name": product_name,
+#         "종류": kindof,
+#         "expiry_date": expiry_date,
+#     }
+#     return jsonify(response), 200
+@app.route("/get")
+#현 리스트 조회 가져오기 짜기
+
+
+#자동문 필터링 
+@app.route("/enroll_inventory",methods=["POST"])
+def enroll_inventory():
+    send_data=  request.json
+    print("send_data",send_data)
+    IM =  InventoryManage()
+    IM.enroll_inventory_unit(send_data)
+    return jsonify({"result": "success","message":"재고 등록 성공!", "inventory_list":IM.cur_inventory_list}),200
+
 
 
 @app.route("/store_list", methods=["POST"])
@@ -95,7 +106,6 @@ def good_store():
     location = req["location"]
 
     store_dict = get_store_list(location)
-    
     return jsonify(store_dict), 200
 
 @app.route("/user-register-view", methods=["GET"])
@@ -138,4 +148,4 @@ def view_board_list():
 
 if __name__ == "__main__":
 
-    app.run(host="0.0.0.0", debug=True, port=5000)
+    app.run(host="0.0.0.0", debug=True, port=8000)

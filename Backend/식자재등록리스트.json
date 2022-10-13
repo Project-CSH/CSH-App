@@ -1,0 +1,51 @@
+[
+  {
+    "barcode_number": "8809228890910",
+    "product_name": "놀부 진한 갈비탕 600G",
+    "kindof": "놀부 진한 갈비탕",
+    "expiry_date": "2023.01.12",
+    "count": 5
+  },
+  {
+    "barcode_number": "8801007274713",
+    "product_name": "태양초 골드 고추장 2kg 1.8G x 1EA",
+    "kindof": "CJ제일제당 태양초 골드 고추장",
+    "expiry_date": "2022.12.15",
+    "count": 3
+  },
+  {
+    "barcode_number": "8809380690144",
+    "product_name": "홈플러스 좋은상품 건강한밥 210G x 8EA",
+    "kindof": "홈플러스 좋은상품 건강한밥",
+    "expiry_date": "2023.11.28",
+    "count": 15
+  },
+  {
+    "barcode_number": "8801133002549",
+    "product_name": "머거본 생선살꾸이[오리지널맛] 150G",
+    "kindof": "머거본 생선살 꾸이 오리지널맛",
+    "expiry_date": "2022.11.04",
+    "count": 10
+  },
+  {
+    "barcode_number": "8809191574565",
+    "product_name": "휴럼 자연숙성한발효흑마늘 80G x 24EA",
+    "kindof": "휴럼 자연숙성한 발효 흑마늘",
+    "expiry_date": "2022.12.21",
+    "count": 5
+  },
+  {
+    "barcode_number": "8809006618972",
+    "product_name": "(주)삼양제넥스 빅마켓 물엿 2450G x 6EA",
+    "kindof": "빅마켓 물엿",
+    "expiry_date": "2023.03.23",
+    "count": 10
+  },
+  {
+    "barcode_number": "8809331505923",
+    "product_name": "(주)아워홈 숯불떡고기완자 650G",
+    "kindof": "아워홈 숯불 떡고기 완자",
+    "expiry_date": "2022.11.19",
+    "count": 50
+  }
+]
