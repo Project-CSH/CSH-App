@@ -1,10 +1,9 @@
-#regiser.py
+#regiser_db.py
 
 import pymysql
-import datetime
 
 def connect_db():
-    conn = pymysql.connect(host="localhost", user="root", password="toor", db="csh", charset="utf8")
+    conn = pymysql.connect(host="localhost", user="root", password="cjdtlsgks", db="csh", charset="utf8")
     return conn
 
 def signup(id,name, belong, password,role):
@@ -23,6 +22,7 @@ def login():
     result = cursor.fetchall()
     conn.close()
     return result
+    
 
 def main():
     print(signup("test","test","test","test","test"))

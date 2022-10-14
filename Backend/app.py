@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request, render_template
 from good_store import get_store_list
 from fpsiren import FoodPosion
 from board import get_board_list, board_write
-from register import signup
+from register_origin import signup
 from flask_cors import CORS
 from inventory_manage import InventoryManage
 
@@ -85,20 +85,31 @@ def sign_up():
 #         "expiry_date": expiry_date,
 #     }
 #     return jsonify(response), 200
-@app.route("/get")
+@app.route("/get_inventory",methods=["GET"])
 #현 리스트 조회 가져오기 짜기
-
+def get_inventory():
+    IM = InventoryManage()
+    if IM.load_inventory_data():
+        return jsonify({"result":"success", "message":"재고 리스트 불러오기 성공!","inventory_list":IM.cur_inventory_list})
+    else:
+        return jsonify({"result":"fail", "message":"재고 리스트 불러오기 실패!","inventory_list":""}) 
 
 #자동문 필터링 
 @app.route("/enroll_inventory",methods=["POST"])
 def enroll_inventory():
-    send_data=  request.json
-    print("send_data",send_data)
     IM =  InventoryManage()
-    IM.enroll_inventory_unit(send_data)
-    return jsonify({"result": "success","message":"재고 등록 성공!", "inventory_list":IM.cur_inventory_list}),200
-
-
+    send_data = request.json
+    if send_data["barcode_number"] == "" :
+        check_send_data = send_data.copy()
+        check_send_data.pop("barcode_number",None)
+        for value in list(check_send_data.values()):
+            if not value:
+                print("hi")
+                return jsonify({"result": "fail","message":"재고 등록 실패! 정보를 다시 확인해주세요.", "inventory_list":IM.cur_inventory_list}),200
+    if IM.enroll_inventory_unit(send_data): 
+        return jsonify({"result": "success","message":"재고 등록 성공!", "inventory_list":IM.cur_inventory_list}),200
+    else:
+        return jsonify({"result": "fail","message":"재고 등록 실패! 정보를 다시 확인해주세요.", "inventory_list":IM.cur_inventory_list}),200
 
 @app.route("/store_list", methods=["POST"])
 def good_store():
@@ -122,8 +133,6 @@ def user_signup():
     user_role = req["role"]
     signup(user_id, user_name, user_belong, user_pw, user_role)
     return render_template("welcome.html")
-
-
 
 @app.route("/board-write-view", methods=["GET"])
 def board_write_view():

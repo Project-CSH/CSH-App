@@ -1,0 +1,14 @@
+{
+  "basic": {
+    "host": "localhost",
+    "user": "root",
+    "password": "cjdtlsgks",
+    "charset": "utf8"
+  },
+  "restaurant": {
+    "create_tables": [
+      "CREATE TABLE account (name VARCHAR(255), email VARCHAR(255), password binary(32), bz_num VARCHAR(255))"
+    ]
+  },
+  "government": {}
+}
