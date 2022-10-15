@@ -1,13 +1,12 @@
 # python ver 3.8.4
 import requests
-import json
 from datetime import datetime
 import pytz
 import re
 from bs4 import BeautifulSoup
 from collections import defaultdict
-import math
-
+import random
+import ujson
 # 기상청 식중독 지수 url 라우팅에 따라
 # https://www.weather.go.kr/plus/life/li_asset/popup/imgdata_popup.jsp?CODE=A01_2&point=2 (06:00 발표 기준, 모레 데이터 조회 불가능)
 # https://www.weather.go.kr/w/resources/jsp/life/imgdata_popup_test.jsp?CODE=A01_2&point=2  (06:00 발표 기준, 모레 데이터 조회 가능)
@@ -232,10 +231,18 @@ class FoodPosion:
                 self.fp_bigcity_average_score_dic[bigcity] / len(fp_city_list)
             )
 
-    def get_my_city_data(self, user_city_name):
+    def get_my_city_virus_info(self, user_city_name):
+        germ_cause_dic = {}
+
+        with open("germ_cause.json","r",encoding="utf-8") as f:
+            germ_cause_dic = ujson.load(f)
+        germ_cause_key_list = list(germ_cause_dic.keys())
+        germ_cause_value_count = len(list(germ_cause_dic.values()))-3
+        fp_bst_virus = germ_cause_key_list[random.randrange(0,len(germ_cause_key_list))]
+        choice_germ_cause_food_index = random.randrange(0,germ_cause_value_count) 
         self.fp_mycity_dic["fp_score"] = self.fp_city_score_dic[user_city_name]
-        self.fp_mycity_dic["fp_bst_virus"] = "살모넬라균"
-        self.fp_mycity_dic["danger_food_lst"] = ["고기", "가공육", "계란", "닭고기", "샐러드", "마요네즈"]
+        self.fp_mycity_dic["fp_bst_virus"] = fp_bst_virus
+        self.fp_mycity_dic["danger_food_lst"] = germ_cause_dic[fp_bst_virus][choice_germ_cause_food_index:choice_germ_cause_food_index+3]
         # {fp_score : 12, fp_bst_virus: '',danger_food_lst: []}
         # 현재 위치 데이터에 대한 위험 알림판
         # self.fp[big_city] = defaultdict(dict)
@@ -250,9 +257,11 @@ class FoodPosion:
 if __name__ == "__main__":
     FP = FoodPosion()
     # 'today','tomorrow','afterTomorrow'
-    FP.set_data("today", "서울시")
+    FP.set_info("today", "서울시")
+    FP.get_my_city_virus_info("원주시")
+    
 
-    FP.get_fpscore_data()
+    # FP.get_fpscore_data()/
     # print(FP.fp_city_score_dic)
     # print(FP.fp_allcity_average_score_dic)
 # point_today =

@@ -23,7 +23,7 @@ class DBMysql():
         if not self.basic_dbconfig:
             print("설정 파일을 불러오지 못했습니다. 파일 경로 또는, 파일 내용이 올바르지 않습니다.")
             return False    
-        if self.check_db(db_name):
+        if not self.check_db(db_name):
             print("DB 구성 설정을 완료하지 못했습니다.")
             return False   
         self.con = pymysql.connect(**{**{"db":db_name},**self.basic_dbconfig})
@@ -34,7 +34,7 @@ class DBMysql():
             #db 체크 및 생성 작업
             self.con.cursor().execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
             #테이블 생성 작업 
-            self.con = self.con = pymysql.connect(**{**{"db":db_name},**self.basic_dbconfig})
+            self.con = pymysql.connect(**{**{"db":db_name},**self.basic_dbconfig})
             for create_table_sql in self.get_dbconfig(db_name)["create_tables"]:
                 self.con.cursor().execute(create_table_sql)
             return True

@@ -28,8 +28,19 @@
 
 
 
-test_dic = {"test":1, "test2":2}
-test_dic2 = test_dic.copy()
-print(test_dic.pop("test"))
-print(test_dic)
-print(test_dic2)
+# test_dic = {"test":1, "test2":2}
+# test_dic2 = test_dic.copy()
+# print(test_dic.pop("test"))
+# print(test_dic)
+# print(test_dic2)
+
+
+
+# test_tuple = (1)
+# return_tuple = (2,3)
+
+# return_tuple += (1)
+
+# print(return_tuple)
+
+print("test".encode('utf-8').hex())

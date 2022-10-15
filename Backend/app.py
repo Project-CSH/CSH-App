@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request, render_template
-from good_store import get_store_list
 from fpsiren import FoodPosion
-from board import get_board_list, board_write
-from register_origin import signup
 from flask_cors import CORS
 from inventory_manage import InventoryManage
+from restaurant_account import ResaurantAccount
+from good_store import get_store_list
+from register_origin import signup
+from board import board_write, get_board_list
+import hashlib
 
 app = Flask(__name__)
 
@@ -48,7 +50,7 @@ def get_fpsiren_my_data():
     day = request.args.get("day")
     fp.set_info(day, user_city_name)
     fp.get_fpscore_data()
-    fp.get_my_city_data(user_city_name)
+    fp.get_my_city_virus_info(user_city_name)
     if not user_city_name in fp.fp_city_score_dic.keys():
         return "No userCityName", 400
     # json 형식 식중독 지수
@@ -67,6 +69,13 @@ def sign_up():
 
     return jsonify(response), 200
 
+@app.route("/rest-push",methods=["GET"])
+def rest_push():
+    return jsonify({"result":"success","message":"[경고] 순창고추장 1kg, p82647809481 유통기한이 지났습니다!"})
+
+@app.route("/user-push",methods=["GET"])
+def user_push():
+    return jsonify({"result":"success","message":"내 지역: [원주시], 식중독 [위험] 식중독 바이러스: 살모넬라, 주의 식품:고기, 계란류 조심바랍니다."})
 
 # @app.route("/barcode_tracking", methods=["POST"])
 # def barcode_tracking():
@@ -104,7 +113,6 @@ def enroll_inventory():
         check_send_data.pop("barcode_number",None)
         for value in list(check_send_data.values()):
             if not value:
-                print("hi")
                 return jsonify({"result": "fail","message":"재고 등록 실패! 정보를 다시 확인해주세요.", "inventory_list":IM.cur_inventory_list}),200
     if IM.enroll_inventory_unit(send_data): 
         return jsonify({"result": "success","message":"재고 등록 성공!", "inventory_list":IM.cur_inventory_list}),200
@@ -115,7 +123,7 @@ def enroll_inventory():
 def good_store():
     req = request.json
     location = req["location"]
-
+    
     store_dict = get_store_list(location)
     return jsonify(store_dict), 200
 
@@ -153,7 +161,27 @@ def view_board_list():
     board_list = get_board_list()
     
     return render_template("board_list.html", board_list=board_list)
-
+@app.route("/rest-login",methods=["POST"])
+def rest_login():
+    req = request.json
+    if "password" in req and  "bz_num" in req:
+        req["password"] = hashlib.sha1(req["password"].encode("utf-8")).hexdigest()
+        if ResaurantAccount().login(req):
+            return jsonify({"result": "success","message":"로그인 성공!"}),200
+        else:
+            return jsonify({"result": "fail","message":"아이디 또는, 비밀번호가 맞지 않습니다."}),200
+    else:
+        return jsonify({"result":"fail", "message":"미입력된 값이 존재합니다."}),400
+@app.route("/rest-signup",methods=["POST"])
+def rest_signup():
+    req = request.json
+    if "password" in req and "name" in req and "email" in req and "bz_num" in req: 
+        if ResaurantAccount().signup(req):
+            return jsonify({"result": "success","message":"회원가입 성공!"}),200
+        else:
+            return jsonify({"result": "fail","message":"회원가입에 실패했습니다. 사업자 번호를 다시 확인해주세요."}),200
+    else:
+        return jsonify({"result":"fail", "message":"미입력된 값이 존재합니다."}),400
 
 if __name__ == "__main__":
 
