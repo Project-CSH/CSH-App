@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "청신한(식당업주)",
+    "slug": "front-restaurant",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon4.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/icon4.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon4.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.csh.restautant"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+   
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notiicon.png",
+          "color": "#ffffff",
+          "mode": "production"
+        }
+      ]
+    ]
+  }
+}

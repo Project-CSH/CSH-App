@@ -90,7 +90,6 @@ def barcode_tracking():
 def good_store():
     req = request.json
     location = req["location"]
-
     store_dict = get_store_list(location)
     
     return jsonify(store_dict), 200
@@ -98,4 +97,4 @@ def good_store():
 
 if __name__ == "__main__":
 
-    app.run(host="0.0.0.0", debug=True, port=5000)
+    app.run(host="0.0.0.0", debug=True, port=3000)

@@ -13,15 +13,15 @@ const UserStack = () => {
     return(
     <Tab.Navigator screenOptions={() => ({
         tabBarInactiveTintColor: 'grey',  //선택 안되어 있을때 색
-        tabBarActiveTintColor: '#3EC70B', //선택 되어 있을때 색
+        tabBarActiveTintColor: '#0085ea', //선택 되어 있을때 색
         tabBarStyle: {
             display: 'flex',
         },
     })}>
-      <Tab.Screen name="착한식당" component={RestaurantList} options={({ route, navigation }) => ({
+      <Tab.Screen name="모범음식점" component={RestaurantList} options={({ route, navigation }) => ({
                     headerShown: false,
-                    title: "착한식당",
-                    tabBarLabel: '착한식당',
+                    title: "모범음식점",
+                    tabBarLabel: '모범음식점',
                     tabBarIcon: ({ color, size }) => {
                         return <MaterialIcons name="restaurant" size={24} color={color} />;
                     },
