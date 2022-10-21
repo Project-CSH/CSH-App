@@ -1,6 +1,7 @@
 # import re
 # import datetime
 # from dateutil.relativedelta import *
+import hashlib
 
 # target_string = "제조일로 부터 90일간"
 # target_string2 = "12개월, 또는 18개월"
@@ -40,6 +41,7 @@
 # return_tuple = (2,3)
 
 # return_tuple += (1)
+print(hashlib.sha1())
 
 # print(return_tuple)
 
