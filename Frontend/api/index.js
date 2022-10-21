@@ -1,6 +1,34 @@
-const IP = "http://172.20.10.6";
-const PORT = ":5000";
-let USER_URL = `${IP}${PORT}/store_list`;
+// const IP = 'http://192.168.55.188';
+// const IP = 'http://127.0.0.1';
+// const IP = 'http://172.26.126.163';
+// const PORT = ':3000';
+const IP = 'http://172.26.122.52';
+const PORT = ':8000';
+
+
+const NOTIFICATION = `http://172.26.126.163:3000/User`;
+
+
+  export const userPush = () =>{
+    return fetch(`${IP}${PORT}/user-push`)
+    .then((response) => response.json())
+    .then((data) => data);
+  }
+
+export const registerToken = (token) =>{
+    return fetch(NOTIFICATION,{
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: {
+            value: token,
+          }
+        }),
+      }).then((response) => response.text());
+}
 
 /**
  * 모범식당 데이터 호출 함수
@@ -9,8 +37,9 @@ let USER_URL = `${IP}${PORT}/store_list`;
  * @returns 
  *  */
 
-export const fetchUser = (setLoc, setList) => {
+export const fetchUser = (setLoc, setList,setBuf) => {
     let _array = [];
+    let USER_URL = `${IP}${PORT}/store_list`;
     fetch(USER_URL, {
         method: "POST",
         headers: {
@@ -28,7 +57,9 @@ export const fetchUser = (setLoc, setList) => {
                     address: data[property]
                 })
             }
+            setBuf(_array);
             setList(_array);
+            console.log(_array)
         }).catch(e=>console.log(e));
 }
 
@@ -42,7 +73,7 @@ export const fetchUser = (setLoc, setList) => {
 export const fetchCildCity = (sendLocation,setChildList) =>{
     console.log(sendLocation);
     let _array = [];
-
+    let _count = 0;
     let CHILD_CITY = `${IP}${PORT}/fpsiren?userCityName=${sendLocation}&day=today`;
     fetch(CHILD_CITY)
         .then((response) => response.json())
@@ -50,9 +81,11 @@ export const fetchCildCity = (sendLocation,setChildList) =>{
             for (const [key, value] of Object.entries(data)) {
                 console.log(`${key}: ${value}`);
                 _array.push({
+                    id:_count,
                     title:key,
                     jisu:value
                 })
+                _count++;
               }
               setChildList(_array);
         });
@@ -64,21 +97,22 @@ export const fetchCildCity = (sendLocation,setChildList) =>{
  * @param {String} day
  * @param {setVirus} setVirus
  * */
-export const fetchMapGaguer = (geo,setGage,day,setVirus='') => {
+export const fetchMapGaguer = (geo,setGage,day,setVirus='',setWarningFood) => {
     // "tomorrow","afterTomorrow"
     //  {fp_score : 12, fp_bst_virus: '',danger_food_lst: []}
     geo = '서울시'
-    let GAGERURL = `http://172.20.10.6:5000/fpsirenMy?userCityName=${geo}&day=${day}`;
+    let GAGERURL = `${IP}${PORT}/fpsirenMy?userCityName=${geo}&day=${day}`;
     fetch(GAGERURL)
         .then((response) => response.json())
         .then((data) => {
             console.log(data.fp_score);
+            console.log(data);
             setGage(data.fp_score);
             setVirus(data.fp_bst_virus);
+            // setWarningFood(data.danger_food_lst);
+            setWarningFood(['helloworld','byeworld']);
         });
 }
-
-
 
 /**
  * Big city average score
@@ -107,4 +141,34 @@ export const fetchBigCity = ()=>{
         "충청남도": 69,
         "충청북도": 61,
       };
+}
+
+
+export const findImgApi = (title,setImg) =>{
+    fetch("https://www.mangoplate.com/search/%EB%AC%B4%EB%B4%89%EB%A6%AC%ED%86%A0%EC%A2%85%EC%88%9C%EB%8C%80%EA%B5%AD", {
+        "headers": {
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+          "accept-language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+          "cache-control": "max-age=0",
+          "if-none-match": "W/\"5b4070dfa8b24bfb567234794563264b\"",
+          "sec-ch-ua": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"macOS\"",
+          "sec-fetch-dest": "document",
+          "sec-fetch-mode": "navigate",
+          "sec-fetch-site": "same-origin",
+          "sec-fetch-user": "?1",
+          "upgrade-insecure-requests": "1"
+        },
+        "referrer": "https://www.mangoplate.com/",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "body": null,
+        "method": "GET",
+        "mode": "cors",
+        "credentials": "include"
+      }).then((response) => response.text())
+        .then(data => {
+            console.log(data);
+           
+        }).catch(e=>console.log(e));
 }
