@@ -1,6 +1,7 @@
 from mysql_db import DBMysql
 import requests
 import json
+import hashlib
 class RestaurantAccount:
     def __init__(self) -> None:
         self.dbmysql = DBMysql()
@@ -21,16 +22,17 @@ class RestaurantAccount:
             return False
     def signup(self,req_data):
         try:
-            if not self.check_bz_num:
+            if not self.check_bz_num(req_data["bz_num"]):
                 return False
+            req_data["password"] = hashlib.sha1(req_data["password"].encode("utf-8")).hexdigest() 
             self.con, self.cursor = self.dbmysql.connect("restaurant")
             field_name_set = tuple(key for key in list(req_data.keys()))
-            insert_data_set = tuple(key for key in list(req_data.values()))
+            insert_value_set = tuple(key for key in list(req_data.values()))
             sql_field_name =f"""{field_name_set}""".replace("\'","")
             sql_insert_data = self.auto_formatter(list(req_data.values())).replace("\'","")
             signup_sql = f"INSERT INTO {self.table_name} {sql_field_name} VALUES {sql_insert_data}"
-            #추후 (auto) 포멧터 형식으로 바꾸면 sql injection 대비가 될것임 => 일단 했으나, 효율적인지는 몰겠음.
-            self.cursor.execute(signup_sql,insert_data_set)
+            #추후 (auto) 포멧터 형식으로 바꾸면 sql injection 대비가 될것임 => 변경 완료, 효율적인지는 몰겠음.
+            self.cursor.execute(signup_sql,insert_value_set)
             self.con.commit()
             self.con.close()
             return True

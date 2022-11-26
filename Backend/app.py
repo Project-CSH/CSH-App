@@ -1,13 +1,12 @@
+import hashlib
 from flask import Flask, jsonify, request, render_template
+from board import board_write, get_board_list
+from good_store import get_store_list
+from register_origin import signup
+from restaurant_account import RestaurantAccount
 from fpsiren import FoodPosion
 from flask_cors import CORS
 from inventory_manage import InventoryManage
-from restaurant_account import ResaurantAccount
-from good_store import get_store_list
-from register_origin import signup
-from board import board_write, get_board_list
-import hashlib
-
 app = Flask(__name__)
 
 app.config["JSON_AS_ASCII"] = False
@@ -33,6 +32,8 @@ def get_fpsiren_data():
     fp.get_fpscore_data()
     if not user_city_name in fp.fp_bigcity_average_score_dic.keys() and user_city_name != "All":
         return "No userCityName", 400
+    if not fp.fp_bigcity_in_city_dic[user_city_name]:
+        return jsonify({"result": "fail","message":"잘못된 도시 값입니다."})
     # 시티 리스트들 보내주기
     return (
         fp.fp_bigcity_in_city_dic[user_city_name]
@@ -123,7 +124,8 @@ def enroll_inventory():
 def good_store():
     req = request.json
     location = req["location"]
-    
+    if not isinstance(location, str):
+        return jsonify({"result": "fail","message":"잘못된 전달값입니다."})
     store_dict = get_store_list(location)
     return jsonify(store_dict), 200
 
@@ -164,9 +166,10 @@ def view_board_list():
 @app.route("/rest-login",methods=["POST"])
 def rest_login():
     req = request.json
+    print("login req",req)
     if "password" in req and  "bz_num" in req:
         req["password"] = hashlib.sha1(req["password"].encode("utf-8")).hexdigest()
-        if ResaurantAccount().login(req):
+        if RestaurantAccount().login(req):
             return jsonify({"result": "success","message":"로그인 성공!"}),200
         else:
             return jsonify({"result": "fail","message":"아이디 또는, 비밀번호가 맞지 않습니다."}),200
@@ -175,13 +178,13 @@ def rest_login():
 @app.route("/rest-signup",methods=["POST"])
 def rest_signup():
     req = request.json
-    if "password" in req and "name" in req and "email" in req and "bz_num" in req: 
-        if ResaurantAccount().signup(req):
-            return jsonify({"result": "success","message":"회원가입 성공!"}),200
+    if "password" in req and "name" in req and "bz_num" in req: 
+        if RestaurantAccount().signup(req):
+            return jsonify({"result": "success","isbzNum": True,"message":"회원가입 성공!"}),200
         else:
-            return jsonify({"result": "fail","message":"회원가입에 실패했습니다. 사업자 번호를 다시 확인해주세요."}),200
+            return jsonify({"result": "fail","isbzNum": False,"message":"회원가입에 실패했습니다. 사업자 번호를 다시 확인해주세요."}),200
     else:
-        return jsonify({"result":"fail", "message":"미입력된 값이 존재합니다."}),400
+        return jsonify({"result":"fail", "isbzNum": False,"message":"미입력된 값이 존재합니다."}),400
 
 if __name__ == "__main__":
 

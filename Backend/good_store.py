@@ -1,4 +1,3 @@
-from audioop import add
 import csv
 
 
@@ -48,7 +47,8 @@ def get_store_list(location):
     for name, address in all_store_dict.items():
         if location in address:
             store_dict[name] = address
-
+    if not store_dict:
+        return False
     print(store_dict)
     return store_dict
 
