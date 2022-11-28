@@ -1,6 +1,12 @@
 {
   "basic": {
     "host": "localhost",
+    "user": "csh",
+    "password": "cjdtlsgks",
+    "charset": "utf8"
+  },
+  "root": {
+    "host": "localhost",
     "user": "root",
     "password": "cjdtlsgks",
     "charset": "utf8"
