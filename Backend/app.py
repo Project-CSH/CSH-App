@@ -8,6 +8,7 @@ from fpsiren import FoodPosion
 from flask_cors import CORS
 from inventory_manage import InventoryManage
 from mysql_db import DBMysql
+from govern import Govern
 
 app = Flask(__name__)
 
@@ -17,6 +18,7 @@ app.config["JSON_AS_ASCII"] = False
 dbmysql =DBMysql().set_db("restaurant")
 if dbmysql:
     res_acc_cls = RestaurantAccount(dbmysql)
+    gov_cls = Govern()
 else:
     exit(-1)
 CORS(app)
@@ -199,6 +201,19 @@ def rest_fileUpload():
     file =  request.files['rec_data']
     print(res_acc_cls.save_rec_data('1',file))
     return jsonify({"result":"success"})
+
+@app.route("/govern-restaurantList",methods=["GET"])
+def govern_restaurant_list():
+    city = request.args.get("city")
+    print("city:",city)
+    if not city == "원주시":
+        return jsonify({"result":"fail", "message":"올바르지 않은 도시이름입니다."}),400
+    try:
+        restaurant_list =gov_cls.restaurant_list()
+        return jsonify({"result":"success","data":restaurant_list})
+    except Exception as e:
+        print("식당 리스트를 불러오지못했습니다.",e)
+        return jsonify({"result":"fail", "message":"잠시후 다시 시도해주세요."}),400 
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", debug=True, port=8000)
