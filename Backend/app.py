@@ -7,10 +7,18 @@ from restaurant_account import RestaurantAccount
 from fpsiren import FoodPosion
 from flask_cors import CORS
 from inventory_manage import InventoryManage
+from mysql_db import DBMysql
+
 app = Flask(__name__)
 
 app.config["JSON_AS_ASCII"] = False
 
+#DB연결
+dbmysql =DBMysql().set_db("restaurant")
+if dbmysql:
+    res_acc_cls = RestaurantAccount(dbmysql)
+else:
+    exit(-1)
 CORS(app)
 @app.route("/", methods=["GET"])
 def welcome():
@@ -77,6 +85,7 @@ def rest_push():
 @app.route("/user-push",methods=["GET"])
 def user_push():
     return jsonify({"result":"success","message":"내 지역: [원주시], 식중독 [위험] 식중독 바이러스: 살모넬라, 주의 식품:고기, 계란류 조심바랍니다."})
+
 
 # @app.route("/barcode_tracking", methods=["POST"])
 # def barcode_tracking():
@@ -169,7 +178,7 @@ def rest_login():
     print("login req",req)
     if "password" in req and  "bz_num" in req:
         req["password"] = hashlib.sha1(req["password"].encode("utf-8")).hexdigest()
-        if RestaurantAccount().login(req):
+        if res_acc_cls.login(req):
             return jsonify({"result": "success","message":"로그인 성공!"}),200
         else:
             return jsonify({"result": "fail","message":"아이디 또는, 비밀번호가 맞지 않습니다."}),200
@@ -179,13 +188,17 @@ def rest_login():
 def rest_signup():
     req = request.json
     if "password" in req and "name" in req and "bz_num" in req: 
-        if RestaurantAccount().signup(req):
+        if res_acc_cls.signup(req):
             return jsonify({"result": "success","isbzNum": True,"message":"회원가입 성공!"}),200
         else:
             return jsonify({"result": "fail","isbzNum": False,"message":"회원가입에 실패했습니다. 사업자 번호를 다시 확인해주세요."}),200
     else:
         return jsonify({"result":"fail", "isbzNum": False,"message":"미입력된 값이 존재합니다."}),400
-
+@app.route("/rest-fileUpload",methods=["POST"])
+def rest_fileUpload():
+    file =  request.files['rec_data']
+    print(res_acc_cls.save_rec_data('1',file))
+    return jsonify({"result":"success"})
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", debug=True, port=8000)

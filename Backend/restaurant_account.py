@@ -1,14 +1,20 @@
-from mysql_db import DBMysql
 import requests
 import json
 import hashlib
+import os
+from werkzeug.utils import secure_filename
+from pathlib import Path
+import cv2
 class RestaurantAccount:
-    def __init__(self) -> None:
-        self.dbmysql = DBMysql()
+    def __init__(self,dbmysql) -> None:
+        self.dbmysql = dbmysql
         #추후 아예 account 클래스로 만들어서 처리하면 더 확장성 있는 개발이 가능할 것으로 보임 
         self.table_name = "account"
+        self.image_path = "" 
+        self.file_name = ""
+        self.con, self.cursor = self.dbmysql.connect()
     def login(self,req_data):
-        self.con, self.cursor = self.dbmysql.connect("restaurant")
+        #Todo  check parameter로직 추가 예
         login_sql = f"SELECT * FROM {self.table_name} WHERE bz_num = %s and password = %s"
         
         self.cursor.execute(login_sql,tuple(key for key in list(req_data.values())))
@@ -25,13 +31,12 @@ class RestaurantAccount:
             if not self.check_bz_num(req_data["bz_num"]):
                 return False
             req_data["password"] = hashlib.sha1(req_data["password"].encode("utf-8")).hexdigest() 
-            self.con, self.cursor = self.dbmysql.connect("restaurant")
             field_name_set = tuple(key for key in list(req_data.keys()))
             insert_value_set = tuple(key for key in list(req_data.values()))
             sql_field_name =f"""{field_name_set}""".replace("\'","")
             sql_insert_data = self.auto_formatter(list(req_data.values())).replace("\'","")
             signup_sql = f"INSERT INTO {self.table_name} {sql_field_name} VALUES {sql_insert_data}"
-            #추후 (auto) 포멧터 형식으로 바꾸면 sql injection 대비가 될것임 => 변경 완료, 효율적인지는 몰겠음.
+            #추후 (auto) 포멧터 형식으로 바꾸면 sql injection 대비가 될것임 => 코드 단축, 유연성 확보 사항으로 변경 완료, 효율적인지는 몰겠음.
             self.cursor.execute(signup_sql,insert_value_set)
             self.con.commit()
             self.con.close()
@@ -39,6 +44,7 @@ class RestaurantAccount:
         except Exception as e:
             print("signup error:",e)
             return False
+    
     def check_bz_num(self,bz_num):
         payload = json.dumps({"b_no": [bz_num] })
         url = "https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=dDnkLTCmV%2BuSIvD6iE4DYT0ZDZJyGKfnm%2Felq9H7iR%2BPHkCWcCZF7hhyHoJH1IFlbXKHdjbVsa6nXf2aBoyHkA%3D%3D"
@@ -50,7 +56,36 @@ class RestaurantAccount:
         else:
             print("존재하는 사업자입니다.")
             return True
-        
+    def save_rec_data(self,resId,file):  
+        # 이미지 아이디를 만들어주기
+        # restaurant id 이미 뿌려주기 
+        # 인공지능 에이전트와 어떻게 판별결과를 Update 할지  
+        self.image_path = Path("./data/"+resId+"/")
+        #Path(os.path.dirname(os.path.abspath(__file__))+"/data/"+resId+"/")
+        print("image path", self.image_path)
+        try:
+            if not os.path.exists(self.image_path):
+                os.makedirs(self.image_path)       
+            self.file_name = secure_filename(file.filename)
+            file.save(os.path.join(self.image_path, self.file_name))
+            print("영상 파일 저장을 완료했습니다.")
+            print("file  path",os.path.join(self.image_path,self.file_name))
+            vidcap = cv2.VideoCapture(os.path.join(self.image_path,self.file_name))
+            
+            if self.video_to_img(vidcap):
+                print("비디오 to 사진 분할 [성공]!")
+            else:
+                print("비디오 to 사진 분할 [실패]!")
+                return False
+            # asyncio 모듈의 event loop 객체 생성
+            # nowTime = str(datetime.now(KST))
+            return True
+           
+
+        except OSError:
+                print("rec_data Error: Failed to create the directory.")
+                return False
+
     def auto_formatter(self, insert_data_list):
         return_tuple = ()
         format_dic = {
@@ -59,9 +94,40 @@ class RestaurantAccount:
         }
         for insert_data_value in list(insert_data_list):
             return_tuple += (format_dic[type(insert_data_value)],)
-        return f"""{return_tuple}"""       
-        
+        return f"""{return_tuple}"""  
+    def video_to_img(self, vidcap):
+        count = 0
+        frame_num = 0
+        image_id = self.get_image_id(open(os.path.join(self.image_path, self.file_name),'rb').read())
+        while (vidcap.isOpened()):
+            ret, img = vidcap.read()
 
+            if ret:
+                #1초당 30프레임
+                frame_num = int(vidcap.get(1))
+
+                if frame_num % 5 != 0:
+                    continue   
+                #filp 상하좌우 반전
+                try:
+
+                    print("count",count)
+                    if cv2.imwrite(f"{Path(self.image_path,image_id)}_{count}.jpg", cv2.flip(img,-1)):
+                        
+                        print(f"Saved {Path(self.image_path,image_id)}_{count}.jpg")
+                    else:
+                        raise Exception("Could not write image")                
+                    count += 1   
+                except Exception as e:
+                    print("오류",e)
+            else:
+                break
+        print(f"#{frame_num} Saved")
+
+        vidcap.release()
+        return True
+    def get_image_id(self, value):
+        return hashlib.sha1(str(value).encode("utf-8")).hexdigest()
 if __name__ == "__main__":
     RA = RestaurantAccount()
     #RA.signup({"name":"테스트계정","email":"test@gmail.com","password":hashlib.sha1("test".encode("utf-8")).hexdigest(),"bz_num": "12345"})
