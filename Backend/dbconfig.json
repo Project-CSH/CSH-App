@@ -15,8 +15,8 @@
     "create_tables": [
       "CREATE TABLE IF NOT EXISTS account (bz_num VARCHAR(255) PRIMARY KEY, name VARCHAR(255), password VARCHAR(255))",
       "CREATE TABLE IF NOT EXISTS infos (restaurant_id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, restaurant_name VARCHAR(255), is_check_hygiene boolean not null default 0, judgement_grade VARCHAR(255), restaurant_address VARCHAR(255), is_visited_restaurant boolean not null default 0, bz_num VARCHAR(255))",
-      "CREATE TABLE IF NOT EXISTS videos ( v_id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, v_path VARCHAR(255), tool_type VARCHAR(255), hygiene_type VARCHAR(255), res_id MEDIUMINT, CONSTRAINT fk_video FOREIGN KEY (res_id) REFERENCES infos (restaurant_id) ON DELETE CASCADE ON UPDATE CASCADE )",
-      "CREATE TABLE IF NOT EXISTS images ( img_id VARCHAR(255) PRIMARY KEY, img_path VARCHAR(255), tool_type VARCHAR(255), hygiene_type VARCHAR(255), v_id MEDIUMINT, CONSTRAINT fk_image FOREIGN KEY (v_id) REFERENCES videos (v_id) ON DELETE CASCADE ON UPDATE CASCADE )"
+      "CREATE TABLE IF NOT EXISTS videos ( v_id VARCHAR(255) PRIMARY KEY, v_path VARCHAR(255), tool_type VARCHAR(255), hygiene_type VARCHAR(255), v_name VARCHAR(255), res_id MEDIUMINT, CONSTRAINT fk_video FOREIGN KEY (res_id) REFERENCES infos (restaurant_id) ON DELETE CASCADE ON UPDATE CASCADE )",
+      "CREATE TABLE IF NOT EXISTS images ( img_id VARCHAR(255) PRIMARY KEY, img_path VARCHAR(255), tool_type VARCHAR(255), hygiene_type VARCHAR(255), v_id VARCHAR(255), CONSTRAINT fk_image FOREIGN KEY (v_id) REFERENCES videos (v_id) ON DELETE CASCADE ON UPDATE CASCADE )"
     ],
     "set_data_infos_table": "INSERT INTO infos (restaurant_id, restaurant_name, is_check_hygiene, judgement_grade, restaurant_address, is_visited_restaurant, bz_num) VALUES ("
   },

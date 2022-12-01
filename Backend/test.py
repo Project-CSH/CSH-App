@@ -98,59 +98,60 @@ end_idx = "5"
 # print(f"#{frame_num} frame")
 
 # vidcap.release()
-import csv
-
-filename = "./모범음식점_전체.csv"
 
 
 
 
+# import csv
 
-def grvn_csv_read(filename):
-        with open(filename,'r',encoding='utf-8') as f:
-                r_data = csv.reader(f)
-                firstLine = False
-                all_store_dict = {}
-                address_index_list = []
-                store_name_index =0 
-                allow_number_index =0 
-                enroll_date_index =0
+# filename = "./모범음식점_전체.csv"
+# def grvn_csv_read(filename):
+#         with open(filename,'r',encoding='utf-8') as f:
+#                 r_data = csv.reader(f)
+#                 firstLine = False
+#                 all_store_dict = {}
+#                 address_index_list = []
+#                 store_name_index =0 
+#                 allow_number_index =0 
+#                 enroll_date_index =0
 
-                for line in r_data:
-                        if firstLine == False:
-                                firstLine = True
-                                for idx, element in enumerate(line):
-                                        if '업소명' in element:
-                                                store_name_index = idx
-                                                continue
-                                        if '인허가번호' in element:
-                                                allow_number_index = idx
-                                                continue
-                                        if '도로명주소' in element or '소재지' in element:                
-                                                address_index_list.append(idx)        
-                                                continue
-                                        if '영업상태명' in element:
-                                                status_index = idx
-                                                continue       
-                                        if '최종수정일자' in element:
-                                                enroll_date_index = idx
-                                                continue
-                                continue
-                        if line[status_index] == '폐업':
-                                continue
-                        name = line[store_name_index]
-                        address = line[address_index_list[0]] if line[address_index_list[0]] == "" else line[address_index_list[1]]
-                        allow_number = line[allow_number_index]
-                        enroll_date = line[enroll_date_index]
-                        all_store_dict[allow_number] = {"address" : address, "enroll_date":enroll_date,"name":name,"allow_number":allow_number}
-        return all_store_dict 
-store_list = []
-all_store_dict = grvn_csv_read(filename)
+#                 for line in r_data:
+#                         if firstLine == False:
+#                                 firstLine = True
+#                                 for idx, element in enumerate(line):
+#                                         if '업소명' in element:
+#                                                 store_name_index = idx
+#                                                 continue
+#                                         if '인허가번호' in element:
+#                                                 allow_number_index = idx
+#                                                 continue
+#                                         if '도로명주소' in element or '소재지' in element:                
+#                                                 address_index_list.append(idx)        
+#                                                 continue
+#                                         if '영업상태명' in element:
+#                                                 status_index = idx
+#                                                 continue       
+#                                         if '최종수정일자' in element:
+#                                                 enroll_date_index = idx
+#                                                 continue
+#                                 continue
+#                         if line[status_index] == '폐업':
+#                                 continue
+#                         name = line[store_name_index]
+#                         address = line[address_index_list[0]] if line[address_index_list[0]] == "" else line[address_index_list[1]]
+#                         allow_number = line[allow_number_index]
+#                         enroll_date = line[enroll_date_index]
+#                         all_store_dict[allow_number] = {"address" : address, "enroll_date":enroll_date,"name":name,"allow_number":allow_number}
+#         return all_store_dict 
+# store_list = []
+# all_store_dict = grvn_csv_read(filename)
 
-for store_dict in all_store_dict.values():
+# for store_dict in all_store_dict.values():
 
-        if "원주시" in store_dict["address"]:
-                store_list.append(store_dict)
-if not store_dict:
-        pass
-print((store_list[0]))
+#         if "원주시" in store_dict["address"]:
+#                 store_list.append(store_dict)
+# if not store_dict:
+#         pass
+# print((store_list[0]))
+import os
+print(os.path.splitext("123tset.mp4")[1])

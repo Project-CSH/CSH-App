@@ -5,14 +5,15 @@ import os
 from werkzeug.utils import secure_filename
 from pathlib import Path
 import cv2
-class RestaurantAccount:
+class Restaurant:
     def __init__(self,dbmysql) -> None:
         self.dbmysql = dbmysql
         #추후 아예 account 클래스로 만들어서 처리하면 더 확장성 있는 개발이 가능할 것으로 보임 
         self.table_name = "account"
-        self.image_path = "" 
+        self.file_path = "" 
         self.file_name = ""
         self.con, self.cursor = self.dbmysql.connect()
+        self.insert_image_values = []
     def login(self,req_data):
         #Todo  check parameter로직 추가 예
         login_sql = f"SELECT * FROM {self.table_name} WHERE bz_num = %s and password = %s"
@@ -60,26 +61,56 @@ class RestaurantAccount:
         # 이미지 아이디를 만들어주기
         # restaurant id 이미 뿌려주기 
         # 인공지능 에이전트와 어떻게 판별결과를 Update 할지  
-        self.image_path = Path("./data/"+resId+"/")
+        self.file_path = Path("./data/"+resId+"/")
         #Path(os.path.dirname(os.path.abspath(__file__))+"/data/"+resId+"/")
-        print("image path", self.image_path)
+        print("image path", self.file_path)
         try:
-            if not os.path.exists(self.image_path):
-                os.makedirs(self.image_path)       
+            result = False
+            if not os.path.exists(self.file_path):
+                os.makedirs(self.file_path)       
             self.file_name = secure_filename(file.filename)
-            file.save(os.path.join(self.image_path, self.file_name))
+            video_id = self.get_hash_id(open(os.path.join(self.file_path, self.file_name),'rb').read())
+            save_video_path = os.path.join(self.file_path, video_id+os.path.splitext(self.file_name)[1])
+            file.save(save_video_path)
             print("영상 파일 저장을 완료했습니다.")
-            print("file  path",os.path.join(self.image_path,self.file_name))
-            vidcap = cv2.VideoCapture(os.path.join(self.image_path,self.file_name))
+            print("file  path",os.path.join(self.file_path,self.file_name))
             
-            if self.video_to_img(vidcap):
+            vidcap = cv2.VideoCapture(os.path.join(self.file_path,self.file_name))
+            cursor = self.con.cursor()
+            cursor.execute("desc videos")
+            field_name_set  = tuple(column[0] for column in cursor.fetchall())
+            # update_field_set = ""
+            # for field_name in list(field_name_set):
+            #     update_field_set += f"{field_name} = %s ,"
+            # update_field_set = update_field_set[:-1]
+            # print("update_field_set",update_field_set)
+            sql_field_name = f"""{field_name_set}""".replace("\'","")
+            sql_insert_value_format = self.auto_formatter(field_name_set).replace("\'","")
+            sql_videos_sql = f"INSERT INTO videos {sql_field_name} VALUES {sql_insert_value_format} ON DUPLICATE KEY UPDATE v_id = %s"
+            print("sql_videos_sql",sql_videos_sql)
+            cursor.execute(sql_videos_sql,(video_id, save_video_path, "None", "None",self.file_name ,int(resId),video_id))
+            self.con.commit()
+            
+            if self.video_to_img(vidcap,video_id):
                 print("비디오 to 사진 분할 [성공]!")
+                print("DB에 해당 이미지 업로드")
+                cursor.execute("desc images")
+                field_name_set  = tuple(column[0] for column in cursor.fetchall())
+                sql_field_name = f"""{field_name_set}""".replace("\'","")
+                sql_insert_value_format = self.auto_formatter(field_name_set).replace("\'","")
+                # ON DUPLICATE KEY UPDATE executemany시 VALUES로 감싸주기
+                sql_images_sql = f"INSERT INTO images {sql_field_name} VALUES {sql_insert_value_format} ON DUPLICATE KEY UPDATE img_id = VALUES(img_id)"
+                print("sql_images_sql",sql_images_sql)
+                cursor.executemany(sql_images_sql,self.insert_image_values)
+                self.con.commit()
+                result = True        
             else:
                 print("비디오 to 사진 분할 [실패]!")
-                return False
+            self.con.close()
+            return result
             # asyncio 모듈의 event loop 객체 생성
             # nowTime = str(datetime.now(KST))
-            return True
+         
            
 
         except OSError:
@@ -95,10 +126,10 @@ class RestaurantAccount:
         for insert_data_value in list(insert_data_list):
             return_tuple += (format_dic[type(insert_data_value)],)
         return f"""{return_tuple}"""  
-    def video_to_img(self, vidcap):
+    def video_to_img(self, vidcap, video_id):
         count = 0
         frame_num = 0
-        image_id = self.get_image_id(open(os.path.join(self.image_path, self.file_name),'rb').read())
+        
         while (vidcap.isOpened()):
             ret, img = vidcap.read()
 
@@ -112,9 +143,17 @@ class RestaurantAccount:
                 try:
 
                     print("count",count)
-                    if cv2.imwrite(f"{Path(self.image_path,image_id)}_{count}.jpg", cv2.flip(img,-1)):
-                        
-                        print(f"Saved {Path(self.image_path,image_id)}_{count}.jpg")
+                    image_id = f"{video_id}_{count}"
+                    image_path = f"{Path(self.file_path,image_id)}.jpg"
+                    if cv2.imwrite(image_path, cv2.flip(img,-1)):
+                          # | img_id       | varchar(255) | NO   | PRI | NULL    |       |
+                          # | img_path     | varchar(255) | YES  |     | NULL    |       |
+                          # | tool_type    | varchar(255) | YES  |     | NULL    |       |
+                          # | hygiene_type | varchar(255) | YES  |     | NULL    |       |
+                          # | v_id         | varchar(255) | YES  | MUL | NULL    |       |
+                        # executemany ㅇ
+                        self.insert_image_values.append((image_id,image_path,"None","None",video_id))
+                        print(f"Saved {image_path}")
                     else:
                         raise Exception("Could not write image")                
                     count += 1   
@@ -126,10 +165,10 @@ class RestaurantAccount:
 
         vidcap.release()
         return True
-    def get_image_id(self, value):
+    def get_hash_id(self, value):
         return hashlib.sha1(str(value).encode("utf-8")).hexdigest()
 if __name__ == "__main__":
-    RA = RestaurantAccount()
+    RA = Restaurant()
     #RA.signup({"name":"테스트계정","email":"test@gmail.com","password":hashlib.sha1("test".encode("utf-8")).hexdigest(),"bz_num": "12345"})
     #RA.login({"name":"테스트계정","password":hashlib.sha1("test".encode("utf-8")).hexdigest()})
     RA.check_bz_num("1208765763")
