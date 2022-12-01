@@ -94,7 +94,8 @@ class Restaurant:
             sql_insert_value_format = self.auto_formatter(field_name_set).replace("\'","")
             sql_videos_sql = f"INSERT INTO videos {sql_field_name} VALUES {sql_insert_value_format} ON DUPLICATE KEY UPDATE v_id = %s"
             print("sql_videos_sql",sql_videos_sql)
-            cursor.execute(sql_videos_sql,(video_id, save_video_path, "None", "None",self.file_name ,int(resId),video_id))
+            print("filename",file.filename)
+            cursor.execute(sql_videos_sql,(video_id, save_video_path, "None", "None",file.filename ,int(resId),video_id))
             self.con.commit()
             
             if self.video_to_img(vidcap,video_id):
