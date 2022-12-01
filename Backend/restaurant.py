@@ -120,8 +120,6 @@ class Restaurant:
                 print(traceback.format_exc())
                 print("save_data Error: Failed to create the directory.",e)
                 return False
-        finally:
-            self.con.close()
 
     def auto_formatter(self, insert_data_list):
         return_tuple = ()
