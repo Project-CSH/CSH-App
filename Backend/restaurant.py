@@ -4,6 +4,7 @@ import hashlib
 import os
 from werkzeug.utils import secure_filename
 from pathlib import Path
+import traceback
 import cv2
 class Restaurant:
     def __init__(self,dbmysql) -> None:
@@ -67,10 +68,15 @@ class Restaurant:
         try:
             result = False
             if not os.path.exists(self.file_path):
-                os.makedirs(self.file_path)       
-            self.file_name = secure_filename(file.filename)
-            video_id = self.get_hash_id(open(os.path.join(self.file_path, self.file_name),'rb').read())
-            save_video_path = os.path.join(self.file_path, video_id+os.path.splitext(self.file_name)[1])
+                os.makedirs(self.file_path) 
+            video_id = self.get_hash_id(file.read())    
+            file.seek(0)  
+            hash_file_name = video_id+os.path.splitext(file.filename)[1]
+            self.file_name = secure_filename(hash_file_name)
+          
+            #video_id = self.get_hash_id(open(os.path.join(self.file_path, self.file_name),'rb').read())
+            save_video_path = os.path.join(self.file_path, hash_file_name)
+            #cv2.VideoWriter(save_video_path, cv2.VideoWriter_fourcc(*'MP4V'), 24, (160, 120))
             file.save(save_video_path)
             print("영상 파일 저장을 완료했습니다.")
             print("file  path",os.path.join(self.file_path,self.file_name))
@@ -106,14 +112,16 @@ class Restaurant:
                 result = True        
             else:
                 print("비디오 to 사진 분할 [실패]!")
-            self.con.close()
             return result
             # asyncio 모듈의 event loop 객체 생성
             # nowTime = str(datetime.now(KST))  
            
         except Exception as e:
+                print(traceback.format_exc())
                 print("save_data Error: Failed to create the directory.",e)
                 return False
+        finally:
+            self.con.close()
 
     def auto_formatter(self, insert_data_list):
         return_tuple = ()
