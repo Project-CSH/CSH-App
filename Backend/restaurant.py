@@ -109,12 +109,10 @@ class Restaurant:
             self.con.close()
             return result
             # asyncio 모듈의 event loop 객체 생성
-            # nowTime = str(datetime.now(KST))
-         
+            # nowTime = str(datetime.now(KST))  
            
-
-        except OSError:
-                print("rec_data Error: Failed to create the directory.")
+        except Exception as e:
+                print("save_data Error: Failed to create the directory.",e)
                 return False
 
     def auto_formatter(self, insert_data_list):
