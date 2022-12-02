@@ -9,7 +9,7 @@ class Govern:
         self.con = None
         self.cursor = None
 
-    def restaurant_list(self):
+    def get_restaurant_list(self):
         self.dbmysql = DBMysql().set_db("restaurant")
         self.con, self.cursor = self.dbmysql.connect()
         get_restaurant_sql = f"SELECT * FROM infos"
@@ -20,3 +20,7 @@ class Govern:
         fields = [field_md[0] for field_md in self.cursor.description]
         result = [dict(zip(fields,row)) for row in self.cursor.fetchall()]
         return result
+    def get_hygiene_result():
+        request_url = ""
+        
+

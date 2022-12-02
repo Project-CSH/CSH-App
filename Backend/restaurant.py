@@ -41,7 +41,6 @@ class Restaurant:
             #추후 (auto) 포멧터 형식으로 바꾸면 sql injection 대비가 될것임 => 코드 단축, 유연성 확보 사항으로 변경 완료, 효율적인지는 몰겠음.
             self.cursor.execute(signup_sql,insert_value_set)
             self.con.commit()
-            self.con.close()
             return True
         except Exception as e:
             print("signup error:",e)
