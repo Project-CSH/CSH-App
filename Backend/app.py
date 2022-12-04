@@ -9,6 +9,7 @@ from flask_cors import CORS
 from inventory_manage import InventoryManage
 from mysql_db import DBMysql
 from govern import Govern
+import traceback
 
 app = Flask(__name__)
 
@@ -178,14 +179,19 @@ def view_board_list():
 def rest_login():
     req = request.json
     print("login req",req)
-    if "password" in req and  "bz_num" in req:
-        req["password"] = hashlib.sha1(req["password"].encode("utf-8")).hexdigest()
-        if rest_cls.login(req):
-            return jsonify({"result": "success","message":"로그인 성공!"}),200
+    try:
+        if "password" in req and  "bz_num" in req:
+            req["password"] = hashlib.sha1(req["password"].encode("utf-8")).hexdigest()
+            if rest_cls.login(req):
+                return jsonify({"result": "success","message":"로그인 성공!"}),200
+            else:
+                return jsonify({"result": "fail","message":"아이디 또는, 비밀번호가 맞지 않습니다."}),200
         else:
-            return jsonify({"result": "fail","message":"아이디 또는, 비밀번호가 맞지 않습니다."}),200
-    else:
-        return jsonify({"result":"fail", "message":"미입력된 값이 존재합니다."}),400
+            return jsonify({"result":"fail", "message":"미입력된 값이 존재합니다."}),400
+    except Exception as e:
+        print(traceback.format_exc())
+        return jsonify({"result":"fail", "message":"잠시후 다시 시도해주세요."}),400
+    
 @app.route("/rest-signup",methods=["POST"])
 def rest_signup():
     req = request.json
