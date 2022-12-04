@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from pathlib import Path
 import traceback
 import cv2
+import pymysql
 class Restaurant:
     def __init__(self,dbmysql) -> None:
         self.dbmysql = dbmysql
@@ -41,10 +42,14 @@ class Restaurant:
             #추후 (auto) 포멧터 형식으로 바꾸면 sql injection 대비가 될것임 => 코드 단축, 유연성 확보 사항으로 변경 완료, 효율적인지는 몰겠음.
             self.cursor.execute(signup_sql,insert_value_set)
             self.con.commit()
-            return True
+            return (True, "회원가입 성공!")
+        except pymysql.IntegrityError as e:
+            print("signup error:",e)
+            if e.args[0] == 1062:
+                return (False,"회원가입에 실패했습니다. 이미 가입된 사업자입니다. 다시확인해주세요.")
         except Exception as e:
             print("signup error:",e)
-            return False
+            return (False,"회원가입에 실패했습니다. 사업자 번호를 다시 확인해주세요.")
     
     def check_bz_num(self,bz_num):
         payload = json.dumps({"b_no": [bz_num] })

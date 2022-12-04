@@ -190,10 +190,11 @@ def rest_login():
 def rest_signup():
     req = request.json
     if "password" in req and "name" in req and "bz_num" in req: 
-        if rest_cls.signup(req):
-            return jsonify({"result": "success","isbzNum": True,"message":"회원가입 성공!"}),200
+        result, message= rest_cls.signup(req)
+        if result:
+            return jsonify({"result": "success","isbzNum": True,"message": message}),200
         else:
-            return jsonify({"result": "fail","isbzNum": False,"message":"회원가입에 실패했습니다. 사업자 번호를 다시 확인해주세요."}),200
+            return jsonify({"result": "fail","isbzNum": False,"message": message}),200
     else:
         return jsonify({"result":"fail", "isbzNum": False,"message":"미입력된 값이 존재합니다."}),400
 @app.route("/rest-fileUpload",methods=["POST"])
@@ -212,7 +213,7 @@ def govern_restaurant_list():
     if not city == "원주시":
         return jsonify({"result":"fail", "message":"올바르지 않은 도시이름입니다."}),400
     try:
-        restaurant_list =gov_cls.get_restaurant_list()
+        restaurant_list =gov_cls.restaurant_list()
         return jsonify({"result":"success","data":restaurant_list})
     except Exception as e:
         print("식당 리스트를 불러오지못했습니다.",e)

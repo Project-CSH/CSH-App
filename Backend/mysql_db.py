@@ -18,6 +18,15 @@ class DBMysqlInit():
         print("DB 연결 완료") 
         con = pymysql.connect(**{**{"db":self.db_name},**self.basic_dbconfig})
         return (con, con.cursor())
+    def get_dbconfig(self,type,target_config_name=None):
+            try:
+                if not target_config_name:
+                    target_config_name = "./dbconfig.json"
+                with open(target_config_name,"r",encoding="utf-8") as f:            
+                    return ujson.load(f)[type]
+            except Exception as e: 
+                print("error:",e)
+                return False
 
 class DBMysql():
     def __init__(self) -> None:
