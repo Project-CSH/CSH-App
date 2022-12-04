@@ -11,7 +11,7 @@ from mysql_db import DBMysql
 from govern import Govern
 import traceback
 
-app = Flask(__name__)
+app = Flask(__name__,static_folder="/")
 
 app.config["JSON_AS_ASCII"] = False
 
@@ -224,6 +224,14 @@ def govern_restaurant_list():
     except Exception as e:
         print("식당 리스트를 불러오지못했습니다.",e)
         return jsonify({"result":"fail", "message":"잠시후 다시 시도해주세요."}),400 
+@app.route("/img/<image_id>",methods=["GET"])
+def load_image(image_id):
+    print("filename",image_id)
+    image_info = gov_cls.get_image_info(image_id)
+    if image_info:
+        #return jsonify({"result":image_info})
+        return render_template('./img.html', image_file=image_info["img_path"].replace("\\","/"))
+    else:
+        return jsonify({"result":"fail", "message":"잘못된 이미지 경로입니다."}),400 
 if __name__ == "__main__":
-
     app.run(host="0.0.0.0", debug=True, port=8000)
