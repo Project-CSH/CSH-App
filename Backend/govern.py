@@ -48,7 +48,7 @@ class Govern:
             for value in self.cursor.fetchall():          
                 result_image_data[value[0]].append({"img_id": value[3],
                 "tool_type":value[5] if value[5] != "None" else "미검사",
-                "hygiene_type":value[6] if value[6] != "None" else "미검사","img_path":"http://cshserver.ga:8000/img/"+value[3]})
+                "hygiene_type":value[6] if value[6] != "None" else "미검사","img_path":"http://cshserver.ga:8000/"+value[4]}) #"http://cshserver.ga:8000/"+value[4]
                 if not value[0] in result_video_data:
                     result_video_data[value[0]]= {
                           "video_id": value[0],
@@ -101,11 +101,14 @@ class Govern:
             from
             infos as i
             join videos as v ON 
-            i.restaurant_id = v.r_id and v.total_hygiene_type = %s
+            i.judgement_grade = %s
+            and i.restaurant_id = v.r_id 
             join images as img ON v.v_id = img.v_id
         """
-        if self.cursor.execute(get_uncheck_images_sql,("None")):
-            print(self.cursor.fetchall())
+        
+        if self.cursor.execute(get_uncheck_images_sql,("판별대기")):
+            for value in self.cursor.fetchall():
+                pass
         else:
             return False
         # check_hygiene_url = "http://01e4-34-80-27-235.ngrok.io"
