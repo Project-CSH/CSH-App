@@ -226,7 +226,7 @@ def govern_restaurant_list():
         return jsonify({"result":"fail", "message":"잠시후 다시 시도해주세요."}),400 
 @app.route("/govern-detail-restaurant",methods=["GET"])
 def get_detail_restaurant():
-    r_id = request.args.get("restaurant_id")
+    r_id = request.args.get("restaurantId")
     if r_id:
         result = gov_cls.get_hygiene_info(r_id)
         if result:
@@ -243,5 +243,11 @@ def load_image(image_id):
         return render_template('./img.html', image_file=image_info["img_path"].replace("\\","/"))
     else:
         return jsonify({"result":"fail", "message":"잘못된 이미지 경로입니다."}),400 
+@app.route("/test",methods=["POST"])
+def test():
+    print("hi")
+    file = request.files["file"]
+    print("file",file)
+    return {"result":"success"}
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, port=8000)

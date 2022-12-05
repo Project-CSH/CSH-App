@@ -3,7 +3,7 @@
 #import os 
 from mysql_db import DBMysql
 from collections import defaultdict
-
+import requests
 class Govern:
     def __init__(self) -> None:
         self.dbmysql = None
@@ -87,7 +87,17 @@ class Govern:
         else:
             print("존재하지 않는 이미지",img_id)
             return False
-    def get_hygiene_result():
-        request_url = ""
+    def get_hygiene_result(self):
+        check_hygiene_url = ""
+
+        img_file = open('./data/1/5a9116936b8129cd6ee53a9bc6e7c772db547d53_15.jpg', 'rb')
+
+        upload = {'file': img_file}
+        # http://c37c-34-80-27-235.ngrok.io
+        res = requests.post('http://c37c-34-80-27-235.ngrok.io', files = upload)
+        print("res",res.json())
 
 
+if __name__ == "__main__":
+    g = Govern()
+    g.get_hygiene_result()
