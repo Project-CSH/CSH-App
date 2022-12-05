@@ -3,7 +3,6 @@
 #import os 
 from mysql_db import DBMysql
 from collections import defaultdict
-import requests
 class Govern:
     def __init__(self) -> None:
         self.dbmysql = None
@@ -88,14 +87,33 @@ class Govern:
             print("존재하지 않는 이미지",img_id)
             return False
     def get_hygiene_result(self):
-        check_hygiene_url = ""
+        self.dbmysql = DBMysql().set_db("restaurant")
+        self.con, self.cursor = self.dbmysql.connect()
+        get_uncheck_images_sql = f"""
+            select
+            v.v_id,
+            v.total_tool_type,
+            v.total_hygiene_type,
+            img.img_id,
+            img.img_path,
+            img.tool_type,
+            img.hygiene_type
+            from
+            infos as i
+            join videos as v ON 
+            i.restaurant_id = v.r_id and v.total_hygiene_type = %s
+            join images as img ON v.v_id = img.v_id
+        """
+        if self.cursor.execute(get_uncheck_images_sql,("None")):
+            print(self.cursor.fetchall())
+        else:
+            return False
+        # check_hygiene_url = "http://01e4-34-80-27-235.ngrok.io"
 
-        img_file = open('./data/1/5a9116936b8129cd6ee53a9bc6e7c772db547d53_15.jpg', 'rb')
+        # img_file = open('./data/2/f47c596aab7d7cb742e95257a36c82fd7a6763ab_5.jpg', 'rb')
 
-        upload = {'file': img_file}
-        # http://c37c-34-80-27-235.ngrok.io
-        res = requests.post('http://c37c-34-80-27-235.ngrok.io', files = upload)
-        print("res",res.json())
+        # res = requests.post(check_hygiene_url, files = {'file': img_file})
+        # print("res",res.json())
 
 
 if __name__ == "__main__":
