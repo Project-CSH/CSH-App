@@ -219,7 +219,7 @@ def govern_restaurant_list():
     if not city == "원주시":
         return jsonify({"result":"fail", "message":"올바르지 않은 도시이름입니다."}),400
     try:
-        restaurant_list =gov_cls.restaurant_list()
+        restaurant_list =gov_cls.get_restaurant_list()
         return jsonify({"result":"success","data":restaurant_list})
     except Exception as e:
         print("식당 리스트를 불러오지못했습니다.",e)
