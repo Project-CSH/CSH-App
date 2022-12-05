@@ -229,6 +229,7 @@ def get_detail_restaurant():
     r_id = request.args.get("restaurant_id")
     if r_id:
         result = gov_cls.get_hygiene_info(r_id)
+        print(result)
         if result:
             return jsonify({"result":"true","message":"식당상세 불러오기 성공","data":result})
         else:

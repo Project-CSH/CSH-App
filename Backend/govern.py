@@ -21,8 +21,8 @@ class Govern:
         fields = [field_md[0] for field_md in self.cursor.description]
         result = [dict(zip(fields,row)) for row in self.cursor.fetchall()]
         return result
-    def get_images_info(self,restaurant_id):
-    
+    def get_hygiene_info(self,restaurant_id):
+        
         self.dbmysql = DBMysql().set_db("restaurant")
         self.con, self.cursor = self.dbmysql.connect()
         return_data ={}
@@ -70,7 +70,7 @@ class Govern:
                     result_video_data[v_id]["clean_per_total"] = f"{clean_type_img}/{len(img_list)}"
                     result_video_data[v_id]["acc_hygiene"] = round(clean_type_img/len(img_list))
                 result_video_data[v_id]["images"] = img_list
-            return_data["videos"] = result_video_data.values()
+            return_data["videos"] = list(result_video_data.values())
 
             return return_data
         else:
