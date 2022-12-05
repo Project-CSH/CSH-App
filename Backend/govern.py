@@ -48,13 +48,13 @@ class Govern:
             result_video_data = {}
             for value in self.cursor.fetchall():          
                 result_image_data[value[0]].append({"img_id": value[3],
-                "tool_type":value[5] if value[5] == "None" else "미검사",
-                "hygiene_type":value[6] if value[6] == "None" else "미검사","img_path":"http://cshserver.ga:8000/img/"+value[3]})
+                "tool_type":value[5] if value[5] != "None" else "미검사",
+                "hygiene_type":value[6] if value[6] != "None" else "미검사","img_path":"http://cshserver.ga:8000/img/"+value[3]})
                 if not value[0] in result_video_data:
                     result_video_data[value[0]]= {
                           "video_id": value[0],
-                  "total_tool_type": value[1] if value[1] == "None" else "미검사",
-                  "total_hygiene_type": value[2] if value[2] == "None" else "미검사",
+                  "total_tool_type": value[1] if value[1] != "None" else "미검사",
+                  "total_hygiene_type": value[2] if value[2] != "None" else "미검사",
                     }
             for v_id, img_list in result_image_data.items():
                 if result_video_data[v_id]["total_hygiene_type"] == "미검사":
