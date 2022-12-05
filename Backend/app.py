@@ -231,7 +231,7 @@ def get_detail_restaurant():
         result = gov_cls.get_hygiene_info(r_id)
         print(result)
         if result:
-            return jsonify({"result":"true","message":"식당상세 불러오기 성공","data":result})
+            return jsonify({"result":"success","message":"식당상세 불러오기 성공","data":result})
         else:
             return jsonify({"result":"fail", "message":"해당 식당에 위생 자료가 존재하지 않습니다."}),200  
     else:
