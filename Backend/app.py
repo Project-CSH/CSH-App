@@ -224,9 +224,19 @@ def govern_restaurant_list():
     except Exception as e:
         print("식당 리스트를 불러오지못했습니다.",e)
         return jsonify({"result":"fail", "message":"잠시후 다시 시도해주세요."}),400 
+@app.route("/govern-detail-restaurant",methods=["GET"])
+def get_detail_restaurant():
+    r_id = request.args.get("restaurant_id")
+    if r_id:
+        result = gov_cls.get_hygiene_info(r_id)
+        if result:
+            return jsonify({"result":"true","message":"식당상세 불러오기 성공","data":result})
+        else:
+            return jsonify({"result":"fail", "message":"해당 식당에 위생 자료가 존재하지 않습니다."}),200  
+    else:
+        return jsonify({"result":"fail", "message":"잘못된 요청입니다."}),400  
 @app.route("/img/<image_id>",methods=["GET"])
 def load_image(image_id):
-    print("filename",image_id)
     image_info = gov_cls.get_image_info(image_id)
     if image_info:
         #return jsonify({"result":image_info})

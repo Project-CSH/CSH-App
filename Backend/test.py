@@ -153,5 +153,8 @@ end_idx = "5"
 # if not store_dict:
 #         pass
 # print((store_list[0]))
-import os
-print(os.path.splitext("123tset.mp4")[1])
+# import os
+# print(os.path.splitext("123tset.mp4")[1])
+
+test_list = ["img.img_id",  "img.img_path", "img.tool_type", "img.hygiene_type","img.v_id"]
+print(','.join(test_list).replace("img.",""))
