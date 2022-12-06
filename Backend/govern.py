@@ -5,6 +5,7 @@ import requests
 from mysql_db import DBMysql
 from collections import defaultdict
 from time import sleep
+import math
 class Govern:
     def __init__(self) -> None:
         self.dbmysql = None
@@ -70,7 +71,7 @@ class Govern:
                             clean_type_img+= 1
                     
                     result_video_data[v_id]["clean_per_total"] = f"{clean_type_img}/{len(img_list)}"
-                    result_video_data[v_id]["acc_hygiene"] = round(clean_type_img/len(img_list))
+                    result_video_data[v_id]["acc_hygiene"] = math.trunc(round(clean_type_img/len(img_list),2) * 100)
                 result_video_data[v_id]["images"] = img_list
             return_data["videos"] = list(result_video_data.values())
 
