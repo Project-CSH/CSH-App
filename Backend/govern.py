@@ -65,6 +65,7 @@ class Govern:
                 else:
                     clean_type_img = 0
                     for img in img_list:
+                        print(f"img['hygiene_type']",img["hygiene_type"])
                         if img["hygiene_type"] == "clean":
                             clean_type_img+= 1
                     
@@ -125,7 +126,7 @@ class Govern:
                 total_video_info_dict[video_id]["tool_types"] = []
                 for img_value in img_value_list:
                     update_image_value_list.append(
-                    (img_value["hygiene_type"],img_value["tool_type"],"판별대기",video_id)
+                    (img_value["tool_type"],img_value["hygiene_type"],"판별대기",video_id)
                 )  # img_tool_type, img_hygiene_type, total_tool_type, v.v_id 
                     if img_value["hygiene_type"] == "clean":
                         total_video_info_dict[video_id]["clean_count"] += 1
