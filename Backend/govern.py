@@ -4,6 +4,7 @@
 import requests
 from mysql_db import DBMysql
 from collections import defaultdict
+from time import sleep
 class Govern:
     def __init__(self) -> None:
         self.dbmysql = None
@@ -113,6 +114,7 @@ class Govern:
         if self.cursor.execute(get_uncheck_images_sql,("판별대기","판별대기")):
             for value in self.cursor.fetchall():
                 hygiene_type, tool_type = self.send_to_ai_server(value[4]) #img_path
+                sleep(0.1)
                 if hygiene_type == False or tool_type == False:
                     return False
                 total_img_info_dict[value[0]].append({"img_id":value[3],"hygiene_type":hygiene_type,"tool_type":tool_type}) 
