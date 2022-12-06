@@ -97,11 +97,12 @@ class Restaurant:
             sql_field_name = f"""{field_name_set}""".replace("\'","")
             sql_insert_value_format = self.auto_formatter(field_name_set).replace("\'","")
             sql_videos_sql = f"INSERT INTO videos {sql_field_name} VALUES {sql_insert_value_format} ON DUPLICATE KEY UPDATE {update_field_set}"
+            #sql_videos_sql = f"REPLACE INTO videos {sql_field_name} VALUES {sql_insert_value_format}"
             print("sql_videos_sql",sql_videos_sql)
             print("filename",file.filename)
             # video_id 
             # cursor.execute(sql_videos_sql,(video_id, save_video_path, "None", "None",file.filename ,int(rest_id),video_id))
-            cursor.execute(sql_videos_sql,(video_id, save_video_path, "None", "None",file.filename ,int(rest_id),save_video_path, "None", "None",file.filename ,int(rest_id)))
+            cursor.execute(sql_videos_sql,(video_id, save_video_path, "판별대기", "판별대기",file.filename ,int(rest_id),save_video_path, "판별대기", "판별대기",file.filename ,int(rest_id)))
             self.con.commit()
             
             if self.video_to_img(vidcap,rest_id,video_id):
@@ -119,6 +120,7 @@ class Restaurant:
                 sql_images_sql = f"INSERT INTO images {sql_field_name} VALUES {sql_insert_value_format} ON DUPLICATE KEY UPDATE {update_field_set}" # img_id = VALUES(img_id)"
                 print("sql_images_sql",sql_images_sql)
                 cursor.executemany(sql_images_sql,self.insert_image_values)
+                cursor.execute("UPDATE infos SET is_check_hygiene = %s, judgement_grade = %s WHERE restaurant_id = %s",(1,"판별대기",rest_id))
                 self.con.commit()
                 result = True        
             else:
@@ -151,7 +153,7 @@ class Restaurant:
                 #1초당 30프레임
                 frame_num = int(vidcap.get(1))
 
-                if frame_num % 5 != 0:
+                if frame_num % 4 != 0:
                     continue   
                 #filp 상하좌우 반전
                 try:
@@ -166,7 +168,7 @@ class Restaurant:
                           # | hygiene_type | varchar(255) | YES  |     | NULL    |       |
                           # | v_id         | varchar(255) | YES  | MUL | NULL    |       |
                         # executemany 
-                        self.insert_image_values.append((image_id,image_path,"None","None",rest_id,video_id))
+                        self.insert_image_values.append((image_id,image_path,"판별대기","판별대기",rest_id,video_id))
                         print(f"Saved {image_path}")
                     else:
                         raise Exception("Could not write image")                

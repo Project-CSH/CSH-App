@@ -2,6 +2,7 @@
 import pymysql
 import ujson
 import csv
+import shutil
 
 ## show dbs
 ## restaurant
@@ -32,10 +33,10 @@ class DBMysql():
     def __init__(self) -> None:
         self.restaurant_csv_filename = "./모범음식점_전체.csv"
         pass
-    def set_db(self,db_name,target_config_name=None) -> None:
+    def set_db(self,db_name,is_update=False,target_config_name=None) -> None:
         basic_dbconfig = self.__get_dbconfig("basic",target_config_name)
 
-        if not self.__check_db(db_name, basic_dbconfig):
+        if not self.__check_db(db_name, basic_dbconfig,is_update):
             print("DB 구성 설정을 완료하지 못했습니다.")
             return None
         else:
@@ -51,7 +52,7 @@ class DBMysql():
             except Exception as e: 
                 print("error:",e)
                 return False
-    def __check_db(self,db_name,basic_dbconfig):
+    def __check_db(self,db_name,basic_dbconfig,is_update):
             try:
                 con = pymysql.connect(**basic_dbconfig)
                 cursor = con.cursor()
@@ -62,7 +63,7 @@ class DBMysql():
                 cursor = con.cursor()
                 for create_table_sql in self.__get_dbconfig(db_name)["create_tables"]:
                     cursor.execute(create_table_sql)
-                if not cursor.execute("SELECT * from infos limit 1"):
+                if not cursor.execute("SELECT * from infos limit 1") or is_update:
                     print("식당 데이터 업로드 중..") 
                     # restaurant_list 형식
                     # {'address': '강원도 원주시 일산동 77-3 ', 'enroll_date': '20211021144038', 'name': '상훈집', 'allow_number': '19740383012'}
@@ -71,12 +72,16 @@ class DBMysql():
                     for csv_restaurant_value in restaurant_list:
                         # restaurant table 형식
                         # ('restaurant_id', 'restaurant_name', 'is_check_hygiene','judgement_grade', 'restaurant_address', 'is_visited_restaurant', 'bz_num')
-                        insert_value_list.append((csv_restaurant_value["name"],0, "판별대기",csv_restaurant_value["address"],0,csv_restaurant_value["allow_number"]))
+                        insert_value_list.append((csv_restaurant_value["name"],0, "자료 미등록",csv_restaurant_value["address"],0,csv_restaurant_value["allow_number"]))
                     cursor.execute("desc infos")
                     field_name_set  = tuple(column[0] for column in cursor.fetchall()[1:])
                     sql_field_name = f"""{field_name_set}""".replace("\'","")
                     sql_insert_value_format = self.auto_formatter(field_name_set).replace("\'","")
-                    set_infos_sql = f"INSERT INTO infos {sql_field_name} VALUES {sql_insert_value_format}"
+                    update_field_set = ""
+                    for field_name in list(field_name_set)[1:]:
+                        update_field_set += f"{field_name} = VALUES({field_name}),"
+                    update_field_set = update_field_set[:-1]
+                    set_infos_sql = f"INSERT INTO infos {sql_field_name} VALUES {sql_insert_value_format} ON DUPLICATE KEY UPDATE {update_field_set}"
                     #cursor.execute(set_infos_sql,(restaurant_list[0]["name"],0, "미검사",restaurant_list[0]["address"],0,restaurant_list[0]["allow_number"]))
                     cursor.executemany(set_infos_sql,insert_value_list)
                     con.commit()
@@ -144,4 +149,20 @@ class DBMysql():
         }
         for insert_data_value in list(insert_data_list):
             return_tuple += (format_dic[type(insert_data_value)],)
-        return f"""{return_tuple}"""  
+        return f"""{return_tuple}""" 
+    def set_rest_id(self):
+        basic_dbconfig = self.__get_dbconfig("basic")
+        con = pymysql.connect(**{**{"db":"restaurant"},**basic_dbconfig})
+        cursor = con.cursor()
+        for sql in self.__get_dbconfig("restaurant")["set_id_tables"]:
+            cursor.execute(sql)
+        con.commit()
+        try:
+            shutil.rmtree("./data")
+        except:
+            pass
+         
+
+if __name__ == "__main__":
+    DBMysql().set_rest_id()
+    DBMysql().set_db("restaurant",True)
