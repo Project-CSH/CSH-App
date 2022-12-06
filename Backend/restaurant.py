@@ -153,7 +153,7 @@ class Restaurant:
                 #1초당 30프레임
                 frame_num = int(vidcap.get(1))
 
-                if frame_num % 6 != 0:
+                if frame_num % 7 != 0:
                     continue   
                 #filp 상하좌우 반전
                 try:

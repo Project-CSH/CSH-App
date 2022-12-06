@@ -243,6 +243,9 @@ def load_image(image_id):
         return render_template('./img.html', image_file=image_info["img_path"].replace("\\","/"))
     else:
         return jsonify({"result":"fail", "message":"잘못된 이미지 경로입니다."}),400 
+@app.route("/govern-fixHygiene",methods=["POST"])
+def fix_Hygiene():
+    pass
 @app.route("/test",methods=["POST"])
 def test():
     print("hi")
