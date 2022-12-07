@@ -165,3 +165,8 @@ print("clean_pen".split("_"))
 print(round(5/12,2)*100 < 50)
 test_count_list = [1,1,1,2,3,3,344,5,4,5,5,4,4]
 print(max(test_count_list, key=test_list.count))
+
+
+test_value_list = [ ("1",2,3,4), ("2",2,3,4),("3",2,3,4)]
+print({test_value[0]:test_value[1:] for test_value in test_value_list})
+test_value_dict = {'a':1}

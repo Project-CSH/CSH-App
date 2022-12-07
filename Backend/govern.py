@@ -4,8 +4,8 @@
 import requests
 from mysql_db import DBMysql
 from collections import defaultdict
-from time import sleep
 import math
+import traceback
 class Govern:
     def __init__(self) -> None:
         self.dbmysql = None
@@ -100,8 +100,6 @@ class Govern:
         self.con, self.cursor = self.dbmysql.connect()
         get_uncheck_images_sql = f"""select
             v.v_id,
-            v.total_tool_type,
-            v.total_hygiene_type,
             img.img_id,
             img.img_path,
             img.tool_type,
@@ -119,26 +117,36 @@ class Govern:
         update_video_value_list = []
         update_image_value_list = []
         if self.cursor.execute(get_uncheck_images_sql,("판별대기","판별대기")):
-            for value in self.cursor.fetchall():
-                hygiene_type, tool_type = self.send_to_ai_server(value[4]) #img_path
-                sleep(0.8)
-                if hygiene_type == False or tool_type == False:
-                    return False
-                total_img_info_dict[value[0]].append({"img_id":value[3],"hygiene_type":hygiene_type,"tool_type":tool_type}) 
+            uncheck_value_list = self.cursor.fetchall()
+            print("판별 이미지 개수:",len(uncheck_value_list))
+            for uncheck_value in uncheck_value_list:
+                total_img_info_dict[uncheck_value[0]].append({"img_id":uncheck_value[1],"img_path":uncheck_value[2],"tool_type":uncheck_value[3],"hygiene_type":uncheck_value[4]})
+
+            # for value in self.cursor.fetchall():
+            #     # 변경 필요
+            # self.send_to_ai_server(total_img_info_dict) #img_path
+            # 변경 필요 
+            if not self.send_to_ai_server(total_img_info_dict):
+                return False
+                # append => insert 
+                # total_img_info_dict[value[0]].append({"img_id":value[3],"hygiene_type":hygiene_type,"tool_type":tool_type}) 
             for video_id, img_value_list in total_img_info_dict.items():
                 total_video_info_dict[video_id]["video_id"] = video_id
                 total_video_info_dict[video_id]["total_count"] = len(img_value_list)
                 total_video_info_dict[video_id]["clean_count"] = 0
                 total_video_info_dict[video_id]["tool_types"] = []
+                print("img_value_list",img_value_list)
                 for img_value in img_value_list:
+                    print("img_value",img_value)
                     update_image_value_list.append(
                     (img_value["tool_type"],img_value["hygiene_type"],"판별대기",video_id)
                 )  # img_tool_type, img_hygiene_type, total_tool_type, v.v_id 
                     if img_value["hygiene_type"] == "clean":
                         total_video_info_dict[video_id]["clean_count"] += 1
                     total_video_info_dict[video_id]["tool_types"].append(img_value["tool_type"])
-                print("total_video_tool_type")
-                total_video_info_dict[video_id]["total_tool_type"] =max(total_video_info_dict[video_id]["tool_types"], key=total_video_info_dict[video_id]["tool_types"].count)
+              
+                total_video_info_dict[video_id]["total_tool_type"] = max(total_video_info_dict[video_id]["tool_types"], key=total_video_info_dict[video_id]["tool_types"].count)
+                print("total_video_tool_type",total_video_info_dict[video_id]["total_tool_type"])
                 # 50보다 크면 정확한 판단으로 봄 
                 clean_per_total = round(total_video_info_dict[video_id]["clean_count"]/total_video_info_dict[video_id]["total_count"],2) * 100
                 if total_video_info_dict[video_id]["total_tool_type"] == "비주방도구":
@@ -173,26 +181,47 @@ class Govern:
         else:
             print("AI 위생 판별이 모두 완료된 상태입니다.")
             return False
-        
-    def send_to_ai_server(self,img_path):
-        print("ai send",img_path)
-        request_result = {}
-        try:
-            check_hygiene_url = "http://41a8-35-240-182-240.ngrok.io"
+    # input ( img_path - > img value list)
+    # output (hygiene, tool_type) -> img value list 
+    def send_to_ai_server(self,total_img_info_dict):
+        for video_id, img_info_list in total_img_info_dict.items():
+            print("대상 Video :",video_id)
+            request_result = {}
+            img_file_list = []
 
-            img_file = open(img_path, 'rb')
-            request_result = requests.post(check_hygiene_url, files = {'file': img_file})
-            res = request_result.json()["Result"]
-            print("AI 판별 결과",res)
-            if res == "Fail":
-                return ("판별불가","비주방도구") # hygiene_type, tool_type
-            else:
-                type_list = res.split("_")
-    
-                return type_list[0], type_list[1] # hygiene_type, tool_type
-        except Exception as e:
-            print("error",request_result)
-            return (False,False)
+            try:
+                check_hygiene_url = "http://b570-34-142-147-146.ngrok.io"
+                for img_info in img_info_list:
+                    print(img_info["img_path"])
+                    
+                    # with (img_info["img_path"], 'rb') as img_file:
+                    img_file_list.append(('file',open(img_info["img_path"],'rb')))
+                print("AI 판별중..")
+                request_result = requests.post(check_hygiene_url, files = img_file_list)
+                res = request_result.json() # {'img_path' : 'result'}
+                result_img_info_list = []
+                for video_id , img_info_list in total_img_info_dict.items():
+                    for img_info in img_info_list[:]:
+                        types = res[img_info["img_id"]+".jpg"]
+
+                        if types == "Fail":
+                            img_info["tool_type"] = "비주방도구"
+                            img_info["hygiene_type"] = "판별불가"
+                        else:
+                            type_list = types.split("_")        
+                            img_info["hygiene_type"] = type_list[0]
+                            img_info["tool_type"] = type_list[1]
+                        result_img_info_list.append(img_info)
+                    total_img_info_dict[video_id] = result_img_info_list
+
+                print(f"AI 판별 완료 : {video_id}\n결과:\n",res)
+                return True
+                
+            except Exception as e:
+                print(traceback.format_exc())
+                print("error!","서버 연결실패")
+                return False
+        print("모두 판별 완료! DB에 저장")
     def fix_restaurant_hugiene(self,restaurant_id,judgement_grade):
         self.dbmysql = DBMysql().set_db("restaurant")
         self.con, self.cursor = self.dbmysql.connect()
