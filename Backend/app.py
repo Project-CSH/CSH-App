@@ -244,8 +244,12 @@ def load_image(image_id):
     else:
         return jsonify({"result":"fail", "message":"잘못된 이미지 경로입니다."}),400 
 @app.route("/govern-fixHygiene",methods=["POST"])
-def fix_Hygiene():
-    pass
+def fix_hygiene():
+    req = request.json
+    if gov_cls.fix_restaurant_hugiene(req["restaurant_id"],req["judgement_grade"]):
+        return jsonify({"result":"success","message":f"[{req['judgement_grade']}] (으)로 위생등급을 변경했습니다."})
+    else:
+        return jsonify({"result":"fail","message":"변경에 실패했습니다."})
 @app.route("/test",methods=["POST"])
 def test():
     print("hi")

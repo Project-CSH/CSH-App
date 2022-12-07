@@ -43,7 +43,7 @@ class Govern:
             and i.restaurant_id = v.r_id
             join images as img ON img.r_id = %s and  v.v_id = img.v_id 
          """ 
-
+     
         if self.cursor.execute(get_images_sql,(restaurant_id,restaurant_id)):
             return_data["restaurant_id"] = str(restaurant_id)
             result_image_data = defaultdict(list)
@@ -113,7 +113,7 @@ class Govern:
             and i.restaurant_id = v.r_id 
             join images as img ON v.v_id = img.v_id
         """
-        
+
         total_img_info_dict = defaultdict(list)
         total_video_info_dict = defaultdict(dict)
         update_video_value_list = []
@@ -137,6 +137,7 @@ class Govern:
                     if img_value["hygiene_type"] == "clean":
                         total_video_info_dict[video_id]["clean_count"] += 1
                     total_video_info_dict[video_id]["tool_types"].append(img_value["tool_type"])
+                print("total_video_tool_type")
                 total_video_info_dict[video_id]["total_tool_type"] =max(total_video_info_dict[video_id]["tool_types"], key=total_video_info_dict[video_id]["tool_types"].count)
                 # 50보다 크면 정확한 판단으로 봄 
                 clean_per_total = round(total_video_info_dict[video_id]["clean_count"]/total_video_info_dict[video_id]["total_count"],2) * 100
@@ -192,6 +193,29 @@ class Govern:
         except Exception as e:
             print("error",request_result)
             return (False,False)
+    def fix_restaurant_hugiene(self,restaurant_id,judgement_grade):
+        self.dbmysql = DBMysql().set_db("restaurant")
+        self.con, self.cursor = self.dbmysql.connect()
+        judgement_grade_list = ["우수","불량"]
+        if judgement_grade in judgement_grade_list:
+            try:
+                update_judgement_grade_sql = f"""
+                        UPDATE
+                        infos i
+                        SET
+                        i.judgement_grade = %s
+                        WHERE  
+                        i.restaurant_id = %s           
+                """
+                self.cursor.execute(update_judgement_grade_sql,(judgement_grade, restaurant_id))
+                self.con.commit()
+                return True 
+            except Exception as e:
+                print("Error fix judgement_grade",e)
+                return False
+        else:
+            return False
+
 
 
 if __name__ == "__main__":
