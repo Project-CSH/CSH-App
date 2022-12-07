@@ -69,6 +69,7 @@ class Govern:
                         print(f"img['hygiene_type']",img["hygiene_type"])
                         if img["hygiene_type"] == "clean":
                             clean_type_img+= 1
+                    print("result video total tool type", result_video_data[v_id]["total_tool_type"])
                     if result_video_data[v_id]["total_tool_type"] != "비주방도구":
                         result_video_data[v_id]["clean_per_total"] = f"{clean_type_img}/{len(img_list)}"
                         result_video_data[v_id]["acc_hygiene"] = math.trunc(round(clean_type_img/len(img_list),2) * 100)
@@ -136,13 +137,15 @@ class Govern:
                     if img_value["hygiene_type"] == "clean":
                         total_video_info_dict[video_id]["clean_count"] += 1
                     total_video_info_dict[video_id]["tool_types"].append(img_value["tool_type"])
+                total_video_info_dict[video_id]["total_tool_type"] =max(total_video_info_dict[video_id]["tool_types"], key=total_video_info_dict[video_id]["tool_types"].count)
                 # 50보다 크면 정확한 판단으로 봄 
                 clean_per_total = round(total_video_info_dict[video_id]["clean_count"]/total_video_info_dict[video_id]["total_count"],2) * 100
-                if clean_per_total > 50:
+                if total_video_info_dict[video_id]["total_tool_type"] == "비주방도구":
+                    total_video_info_dict[video_id]["total_hygiene_type"] = "판별불가"
+                elif clean_per_total > 50:
                     total_video_info_dict[video_id]["total_hygiene_type"] = "clean"
                 else:
                     total_video_info_dict[video_id]["total_hygiene_type"] = "dirty"
-                total_video_info_dict[video_id]["total_tool_type"] =max(total_video_info_dict[video_id]["tool_types"], key=total_video_info_dict[video_id]["tool_types"].count)
 
                 update_video_value_list.append(
                     ("관리자 미승인",total_video_info_dict[video_id]["total_tool_type"],
