@@ -28,15 +28,15 @@ class Govern:
         self.dbmysql = DBMysql().set_db("restaurant")
         self.con, self.cursor = self.dbmysql.connect()
         return_data ={}
-        get_images_sql = f"""
-            select
+        get_images_sql = f"""select
             v.v_id,
             v.total_tool_type,
             v.total_hygiene_type,
             img.img_id,
             img.img_path,
             img.tool_type,
-            img.hygiene_type
+            img.hygiene_type,
+            i.judgement_grade
             from
             infos as i
             join videos as v ON i.restaurant_id = %s
@@ -46,9 +46,11 @@ class Govern:
      
         if self.cursor.execute(get_images_sql,(restaurant_id,restaurant_id)):
             return_data["restaurant_id"] = str(restaurant_id)
+            
             result_image_data = defaultdict(list)
             result_video_data = {}
-            for value in self.cursor.fetchall():          
+            for value in self.cursor.fetchall():  
+                return_data["judgement_grade"] = value[7]     
                 result_image_data[value[0]].append({"img_id": value[3],
                 "tool_type":value[5] ,
                 "hygiene_type":value[6] ,"img_path":"http://cshserver.ga:8000/"+value[4]}) #"http://cshserver.ga:8000/"+value[4]
