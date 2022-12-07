@@ -1,11 +1,11 @@
 #import json
 # import requests
 #import os 
-import requests
 from mysql_db import DBMysql
 from collections import defaultdict
 import math
 import traceback
+import requests
 class Govern:
     def __init__(self) -> None:
         self.dbmysql = None
@@ -49,26 +49,29 @@ class Govern:
             
             result_image_data = defaultdict(list)
             result_video_data = {}
+           
             for value in self.cursor.fetchall():  
                 return_data["judgement_grade"] = value[7]     
-                result_image_data[value[0]].append({"img_id": value[3],
+                result_image_data[value[0]].append(
+                {"img_id": value[3],
                 "tool_type":value[5] ,
                 "hygiene_type":value[6] ,"img_path":"http://cshserver.ga:8000/"+value[4]}) #"http://cshserver.ga:8000/"+value[4]
                 if not value[0] in result_video_data:
+                    print("video_id",value[0])
                     result_video_data[value[0]]= {
                           "video_id": value[0],
                   "total_tool_type": value[1] ,
                   "total_hygiene_type": value[2],
                     }
+            print("result_video_data",result_video_data)
             for v_id, img_list in result_image_data.items():
-                if result_video_data[v_id]["total_hygiene_type"] == "판별대기":
+                if result_video_data[v_id]["total_tool_type"] == "판별대기":
                     result_video_data[v_id]["clean_per_total"] = "판별대기"
                     result_video_data[v_id]["acc_hygiene"] = "판별대기"
                    
                 else:
                     clean_type_img = 0
                     for img in img_list:
-                        print(f"img['hygiene_type']",img["hygiene_type"])
                         if img["hygiene_type"] == "clean":
                             clean_type_img+= 1
                     print("result video total tool type", result_video_data[v_id]["total_tool_type"])
@@ -109,16 +112,16 @@ class Govern:
             from
             infos as i
             join videos as v ON 
-            (i.judgement_grade = %s or v.total_tool_type = %s)
-            and i.restaurant_id = v.r_id 
-            join images as img ON v.v_id = img.v_id
+            v.total_tool_type = %s
+            and i.restaurant_id = v.r_id
+            join images as img ON v.v_id = img.v_id 
         """
-
+  
         total_img_info_dict = defaultdict(list)
         total_video_info_dict = defaultdict(dict)
         update_video_value_list = []
         update_image_value_list = []
-        if self.cursor.execute(get_uncheck_images_sql,("판별대기","판별대기")):
+        if self.cursor.execute(get_uncheck_images_sql,("판별대기")):
             uncheck_value_list = self.cursor.fetchall()
             print("판별 이미지 개수:",len(uncheck_value_list))
             for uncheck_value in uncheck_value_list:
@@ -137,16 +140,16 @@ class Govern:
                 total_video_info_dict[video_id]["total_count"] = len(img_value_list)
                 total_video_info_dict[video_id]["clean_count"] = 0
                 total_video_info_dict[video_id]["tool_types"] = []
-                print("img_value_list",img_value_list)
                 for img_value in img_value_list:
-                    print("img_value",img_value)
+                    # print("img_value",img_value)
                     update_image_value_list.append(
                     (img_value["tool_type"],img_value["hygiene_type"],"판별대기",video_id)
                 )  # img_tool_type, img_hygiene_type, total_tool_type, v.v_id 
                     if img_value["hygiene_type"] == "clean":
                         total_video_info_dict[video_id]["clean_count"] += 1
                     total_video_info_dict[video_id]["tool_types"].append(img_value["tool_type"])
-              
+                print("tool_types",total_video_info_dict[video_id]["tool_types"])
+                print("max tool type",max(total_video_info_dict[video_id]["tool_types"], key=total_video_info_dict[video_id]["tool_types"].count))
                 total_video_info_dict[video_id]["total_tool_type"] = max(total_video_info_dict[video_id]["tool_types"], key=total_video_info_dict[video_id]["tool_types"].count)
                 print("total_video_tool_type",total_video_info_dict[video_id]["total_tool_type"])
                 # 50보다 크면 정확한 판단으로 봄 
@@ -165,13 +168,14 @@ class Govern:
               
             update_image_sql = f"""UPDATE
                 videos v
-                INNER JOIN images img ON img.r_id = v.r_id
+                INNER JOIN images img ON img.r_id = v.r_id and v.v_id = img.v_id
                 SET
                 img.tool_type = %s,
                 img.hygiene_type = %s
                 WHERE
                 v.total_tool_type = %s
                 AND v.v_id = %s"""
+            print("update_image_value_list",update_image_value_list)
             self.cursor.executemany(update_image_sql,update_image_value_list)
             update_video_sql= f"""UPDATE infos i 
                 INNER JOIN videos v ON i.restaurant_id = v.r_id SET i.judgement_grade = %s,
@@ -192,7 +196,7 @@ class Govern:
             img_file_list = []
 
             try:
-                check_hygiene_url = "http://b570-34-142-147-146.ngrok.io"
+                check_hygiene_url = "http://0df1-34-142-147-146.ngrok.io"
                 # print("img_info_list",img_info_list)
                 for img_info in img_info_list:
                     print(img_info["img_path"])
