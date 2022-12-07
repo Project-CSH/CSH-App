@@ -41,10 +41,10 @@ class Govern:
             infos as i
             join videos as v ON i.restaurant_id = %s
             and i.restaurant_id = v.r_id
-            join images as img ON v.v_id = img.v_id
-        """
-  
-        if self.cursor.execute(get_images_sql,(restaurant_id)):
+            join images as img ON img.r_id = %s and  v.v_id = img.v_id 
+         """ 
+
+        if self.cursor.execute(get_images_sql,(restaurant_id,restaurant_id)):
             return_data["restaurant_id"] = str(restaurant_id)
             result_image_data = defaultdict(list)
             result_video_data = {}
@@ -69,9 +69,12 @@ class Govern:
                         print(f"img['hygiene_type']",img["hygiene_type"])
                         if img["hygiene_type"] == "clean":
                             clean_type_img+= 1
-                    
-                    result_video_data[v_id]["clean_per_total"] = f"{clean_type_img}/{len(img_list)}"
-                    result_video_data[v_id]["acc_hygiene"] = math.trunc(round(clean_type_img/len(img_list),2) * 100)
+                    if result_video_data[v_id]["total_tool_type"] != "비주방도구":
+                        result_video_data[v_id]["clean_per_total"] = f"{clean_type_img}/{len(img_list)}"
+                        result_video_data[v_id]["acc_hygiene"] = math.trunc(round(clean_type_img/len(img_list),2) * 100)
+                    else:
+                        result_video_data[v_id]["clean_per_total"] = "판별불가"
+                        result_video_data[v_id]["acc_hygiene"] = "판별불가"
                 result_video_data[v_id]["images"] = img_list
             return_data["videos"] = list(result_video_data.values())
 
@@ -109,6 +112,7 @@ class Govern:
             and i.restaurant_id = v.r_id 
             join images as img ON v.v_id = img.v_id
         """
+        
         total_img_info_dict = defaultdict(list)
         total_video_info_dict = defaultdict(dict)
         update_video_value_list = []
