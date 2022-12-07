@@ -191,6 +191,7 @@ class Govern:
 
             try:
                 check_hygiene_url = "http://b570-34-142-147-146.ngrok.io"
+                # print("img_info_list",img_info_list)
                 for img_info in img_info_list:
                     print(img_info["img_path"])
                     
@@ -200,28 +201,27 @@ class Govern:
                 request_result = requests.post(check_hygiene_url, files = img_file_list)
                 res = request_result.json() # {'img_path' : 'result'}
                 result_img_info_list = []
-                for video_id , img_info_list in total_img_info_dict.items():
-                    for img_info in img_info_list[:]:
-                        types = res[img_info["img_id"]+".jpg"]
+                for img_info in img_info_list[:]:
+                    
+                    types = res[img_info["img_id"]+".jpg"]
 
-                        if types == "Fail":
-                            img_info["tool_type"] = "비주방도구"
-                            img_info["hygiene_type"] = "판별불가"
-                        else:
-                            type_list = types.split("_")        
-                            img_info["hygiene_type"] = type_list[0]
-                            img_info["tool_type"] = type_list[1]
-                        result_img_info_list.append(img_info)
-                    total_img_info_dict[video_id] = result_img_info_list
+                    if types == "Fail":
+                        img_info["tool_type"] = "비주방도구"
+                        img_info["hygiene_type"] = "판별불가"
+                    else:
+                        type_list = types.split("_")        
+                        img_info["hygiene_type"] = type_list[0]
+                        img_info["tool_type"] = type_list[1]
+                    result_img_info_list.append(img_info)
+                total_img_info_dict[video_id] = result_img_info_list
 
                 print(f"AI 판별 완료 : {video_id}\n결과:\n",res)
-                return True
-                
             except Exception as e:
                 print(traceback.format_exc())
                 print("error!","서버 연결실패")
                 return False
         print("모두 판별 완료! DB에 저장")
+        return True
     def fix_restaurant_hugiene(self,restaurant_id,judgement_grade):
         self.dbmysql = DBMysql().set_db("restaurant")
         self.con, self.cursor = self.dbmysql.connect()
