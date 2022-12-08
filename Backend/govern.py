@@ -21,7 +21,6 @@ class Govern:
 
         # return [[item[0] )]
         fields = [field_md[0] for field_md in self.cursor.description]
-        if 
         result = [dict(zip(fields,row)) for row in self.cursor.fetchall()]
         return result
     def get_hygiene_info(self,restaurant_id):
