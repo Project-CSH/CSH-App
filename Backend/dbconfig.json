@@ -14,7 +14,7 @@
   "restaurant": {
     "create_tables": [
       "CREATE TABLE IF NOT EXISTS account (bz_num VARCHAR(255) PRIMARY KEY, name VARCHAR(255), password VARCHAR(255))",
-      "CREATE TABLE IF NOT EXISTS infos (restaurant_id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, restaurant_name VARCHAR(255), is_check_hygiene boolean not null default 0, judgement_grade VARCHAR(255), restaurant_address VARCHAR(255), is_visited_restaurant boolean not null default 0, bz_num VARCHAR(255))",
+      "CREATE TABLE IF NOT EXISTS infos (restaurant_id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, restaurant_name VARCHAR(255), is_check_hygiene boolean not null default 0, judgement_grade VARCHAR(255), restaurant_address VARCHAR(255), is_visited_restaurant boolean not null default 0, bz_num VARCHAR(255), visit_date DATE default '0000-00-00')",
       "CREATE TABLE IF NOT EXISTS videos ( v_id VARCHAR(255), v_path VARCHAR(255), total_tool_type VARCHAR(255), total_hygiene_type VARCHAR(255), v_name VARCHAR(255), r_id MEDIUMINT,PRIMARY KEY(v_id,r_id), CONSTRAINT fk_video FOREIGN KEY (r_id) REFERENCES infos (restaurant_id) ON DELETE CASCADE ON UPDATE CASCADE )",
       "CREATE TABLE IF NOT EXISTS images ( img_id VARCHAR(255),img_path VARCHAR(255), tool_type VARCHAR(255), hygiene_type VARCHAR(255),r_id MEDIUMINT, v_id VARCHAR(255),PRIMARY KEY(img_id, r_id), CONSTRAINT fk_image FOREIGN KEY (v_id) REFERENCES videos (v_id) ON DELETE CASCADE ON UPDATE CASCADE )"
     ],

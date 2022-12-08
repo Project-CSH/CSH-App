@@ -162,7 +162,7 @@ class Govern:
                     total_video_info_dict[video_id]["total_hygiene_type"] = "dirty"
 
                 update_video_value_list.append(
-                    ("관리자 미승인",total_video_info_dict[video_id]["total_tool_type"],
+                    ("관리자 미승인","1111-11-11",total_video_info_dict[video_id]["total_tool_type"],
                     total_video_info_dict[video_id]["total_hygiene_type"],video_id
                 )) #i.judgement_grade,v.total_tool_type,v.total_hygiene_type,v.v_id
               
@@ -178,7 +178,7 @@ class Govern:
             print("update_image_value_list",update_image_value_list)
             self.cursor.executemany(update_image_sql,update_image_value_list)
             update_video_sql= f"""UPDATE infos i 
-                INNER JOIN videos v ON i.restaurant_id = v.r_id SET i.judgement_grade = %s,
+                INNER JOIN videos v ON i.restaurant_id = v.r_id SET i.judgement_grade = %s,i.visit_date = %s,
                 v.total_tool_type = %s, v.total_hygiene_type = %s
                 WHERE v.v_id = %s """
             self.cursor.executemany(update_video_sql,update_video_value_list)
@@ -196,7 +196,7 @@ class Govern:
             img_file_list = []
 
             try:
-                check_hygiene_url = "http://0df1-34-142-147-146.ngrok.io"
+                check_hygiene_url = "http://1fb0-35-247-140-143.ngrok.io"
                 # print("img_info_list",img_info_list)
                 for img_info in img_info_list:
                     print(img_info["img_path"])
@@ -250,6 +250,28 @@ class Govern:
                 return False
         else:
             return False
+    def enroll_visit_date(self, date, restaurant_id):
+        
+        try:
+            self.dbmysql = DBMysql().set_db("restaurant")
+            self.con, self.cursor = self.dbmysql.connect()
+            update_visit_date = f"""
+                            UPDATE
+                            infos i
+                            SET
+                            i.visit_date = %s
+                            WHERE  
+                            i.restaurant_id = %s         
+                            """
+            if self.cursor.execute(update_visit_date,(date,restaurant_id)):
+                self.con.commit()
+                return True
+            else:
+                return False
+        except Exception as e:
+            print("error enroll_visit_date",e)
+            return False
+
 
 
 
