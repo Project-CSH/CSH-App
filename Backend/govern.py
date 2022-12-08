@@ -21,6 +21,7 @@ class Govern:
 
         # return [[item[0] )]
         fields = [field_md[0] for field_md in self.cursor.description]
+        if 
         result = [dict(zip(fields,row)) for row in self.cursor.fetchall()]
         return result
     def get_hygiene_info(self,restaurant_id):
@@ -178,7 +179,7 @@ class Govern:
             print("update_image_value_list",update_image_value_list)
             self.cursor.executemany(update_image_sql,update_image_value_list)
             update_video_sql= f"""UPDATE infos i 
-                INNER JOIN videos v ON i.restaurant_id = v.r_id SET i.judgement_grade = %s,i.visit_date = %s,
+                INNER JOIN videos v ON i.restaurant_id = v.r_id SET i.judgement_grade = %s,i.date = %s,
                 v.total_tool_type = %s, v.total_hygiene_type = %s
                 WHERE v.v_id = %s """
             self.cursor.executemany(update_video_sql,update_video_value_list)
@@ -259,7 +260,7 @@ class Govern:
                             UPDATE
                             infos i
                             SET
-                            i.visit_date = %s
+                            i.date = %s
                             WHERE  
                             i.restaurant_id = %s         
                             """
@@ -269,7 +270,7 @@ class Govern:
             else:
                 return False
         except Exception as e:
-            print("error enroll_visit_date",e)
+            print("error enroll_date",e)
             return False
 
 
