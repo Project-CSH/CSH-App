@@ -72,7 +72,7 @@ class DBMysql():
                     for csv_restaurant_value in restaurant_list:
                         # restaurant table 형식
                         # ('restaurant_id', 'restaurant_name', 'is_check_hygiene','judgement_grade', 'restaurant_address', 'is_visited_restaurant', 'bz_num')
-                        insert_value_list.append((csv_restaurant_value["name"],0, "자료 미등록",csv_restaurant_value["address"],0,csv_restaurant_value["allow_number"],'0000-00-00'))
+                        insert_value_list.append((csv_restaurant_value["name"],0, "자료 미등록",csv_restaurant_value["address"],0,csv_restaurant_value["allow_number"],'1000-01-01'))
                     cursor.execute("desc infos")
                     field_name_set  = tuple(column[0] for column in cursor.fetchall()[1:])
                     sql_field_name = f"""{field_name_set}""".replace("\'","")
