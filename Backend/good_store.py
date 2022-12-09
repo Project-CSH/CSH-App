@@ -39,6 +39,7 @@ def csv_read(filename):
     f.close()
     return all_store_dict
 
+
 def get_store_list(location):
     
     filename = '모범음식점_전체.csv'
