@@ -208,7 +208,7 @@ class Govern:
             img_file_list = []
 
             try:
-                check_hygiene_url = "http://ad03-35-223-229-212.ngrok.io"
+                check_hygiene_url = "http://2e68-35-223-229-212.ngrok.io"
                 # print("img_info_list",img_info_list)
                 for img_info in img_info_list:
                     print(img_info["img_path"])
