@@ -103,7 +103,7 @@ class Restaurant:
             # video_id 
             # cursor.execute(sql_videos_sql,(video_id, save_video_path, "None", "None",file.filename ,int(rest_id),video_id))
             cursor.execute(sql_videos_sql,(video_id, save_video_path, "판별대기", "판별대기",file.filename ,int(rest_id),save_video_path, "판별대기", "판별대기",file.filename ,int(rest_id)))
-            self.con.commit()
+            # self.con.commit()
             
             if self.video_to_img(vidcap,rest_id,video_id):
                 print("비디오 to 사진 분할 [성공]!")

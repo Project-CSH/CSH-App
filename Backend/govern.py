@@ -197,7 +197,7 @@ class Govern:
             self.con.commit()
             print("==============[AI 위생 검사 완료]==============")
         else:
-            print("AI 위생 판별이 모두 완료된 상태입니다.")
+            print("==========[AI 위생 판별 대상 미존재]==========\n 검사가 모두 완료된 상태입니다.")
             return False
     # input ( img_path - > img value list)
     # output (hygiene, tool_type) -> img value list 
@@ -208,7 +208,7 @@ class Govern:
             img_file_list = []
 
             try:
-                check_hygiene_url = "http://ddda-35-223-229-212.ngrok.io"
+                check_hygiene_url = "http://ab65-35-223-229-212.ngrok.io"
                 # print("img_info_list",img_info_list)
                 for img_info in img_info_list:
                     print(img_info["img_path"])
