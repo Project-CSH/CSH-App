@@ -306,7 +306,7 @@ class Govern:
                             WHERE  
                             i.restaurant_id = %s         
                             """
-            if self.cursor.execute(update_fix_isisvisit,(is_visited_restaurant, restaurant_id)):
+            if self.cursor.execute(update_fix_isisvisit,(int(is_visited_restaurant), restaurant_id)):
                 self.con.commit()
                 return True
             else:
@@ -314,7 +314,17 @@ class Govern:
         except Exception as e:
             print("error fix_isvisit",e)
             return False    
-
+    def enroll_notice_list(self,add_notice):
+        try:
+            with open("notice.json", "r", encoding="utf-8") as f:
+                    self.notice_list = ujson.load(f)
+            self.notice_list.append(add_notice)
+            with open("notice.json", "w", encoding="utf-8") as f:
+                ujson.dump(self.notice_list, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print("error get_notice_list",e)
+            return False
 
 if __name__ == "__main__":
     g = Govern()
