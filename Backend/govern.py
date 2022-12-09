@@ -314,7 +314,7 @@ class Govern:
         except Exception as e:
             print("error fix_isvisit",e)
             return False    
-    def enroll_notice_list(self,add_notice):
+    def delete_notice(self,add_notice):
         try:
             with open("notice.json", "r", encoding="utf-8") as f:
                     self.notice_list = ujson.load(f)

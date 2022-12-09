@@ -280,7 +280,18 @@ def govern_enroll_notice():
 @app.route("/govern-fixIsvisit", methods=["POST"])
 def govern_fix_isvisit():
     req = request.json
-    isvisted_value_list = [0,1]
+    isvisted_value_list = ["0","1"]
+    if "is_visited_restaurant"  in req and "restaurant_id" in req:
+        if req["is_visited_restaurant"] in isvisted_value_list  and gov_cls.fix_isvisit(req["is_visited_restaurant"], req["restaurant_id"]):
+            return jsonify({"result":"success","message":"방문 현황을 변경했습니다.","data":gov_cls.restaurant_list})
+        else:
+            return jsonify({"result":"fail","message":"데이터 형식을 다시 확인해주세요."})
+    else:
+        return jsonify({"result":"fail","message":"올바르지 않은 요청입니다."})
+@app.route("/govern-deleteNotice", methods=["POST"])
+def govern_delete_notice():
+    req = request.json
+    isvisted_value_list = ["0","1"]
     if "is_visited_restaurant"  in req and "restaurant_id" in req:
         if req["is_visited_restaurant"] in isvisted_value_list  and gov_cls.fix_isvisit(req["is_visited_restaurant"], req["restaurant_id"]):
             return jsonify({"result":"success","message":"방문 현황을 변경했습니다.","data":gov_cls.notice_list})
