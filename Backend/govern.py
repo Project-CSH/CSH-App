@@ -74,13 +74,16 @@ class Govern:
                    
                 else:
                     clean_type_img = 0
+                    other_type_img = 0
                     for img in img_list:
                         if img["hygiene_type"] == "clean":
                             clean_type_img+= 1
+                        if img["tool_type"] == "비주방도구":
+                            other_type_img += 1
                     print("result video total tool type", result_video_data[v_id]["total_tool_type"])
                     if result_video_data[v_id]["total_tool_type"] != "비주방도구":
-                        result_video_data[v_id]["clean_per_total"] = f"{clean_type_img}/{len(img_list)}"
-                        result_video_data[v_id]["acc_hygiene"] = math.trunc(round(clean_type_img/len(img_list),2) * 100)
+                        result_video_data[v_id]["clean_per_total"] = f"{clean_type_img}/{(len(img_list) - other_type_img)}"
+                        result_video_data[v_id]["acc_hygiene"] = math.trunc(round(clean_type_img/(len(img_list)-other_type_img),2) * 100)
                     else:
                         result_video_data[v_id]["clean_per_total"] = "판별불가"
                         result_video_data[v_id]["acc_hygiene"] = "판별불가"
@@ -117,14 +120,14 @@ class Govern:
             join videos as v ON 
             v.total_tool_type = %s
             and i.restaurant_id = v.r_id
-            join images as img ON v.v_id = img.v_id 
+            join images as img ON v.v_id = img.v_id and v.total_tool_type = %s
         """
   
         total_img_info_dict = defaultdict(list)
         total_video_info_dict = defaultdict(dict)
         update_video_value_list = []
         update_image_value_list = []
-        if self.cursor.execute(get_uncheck_images_sql,("판별대기")):
+        if self.cursor.execute(get_uncheck_images_sql,("판별대기","판별대기")):
             uncheck_value_list = self.cursor.fetchall()
             print("판별 이미지 개수:",len(uncheck_value_list))
             for uncheck_value in uncheck_value_list:
@@ -142,6 +145,7 @@ class Govern:
                 total_video_info_dict[video_id]["video_id"] = video_id
                 total_video_info_dict[video_id]["total_count"] = len(img_value_list)
                 total_video_info_dict[video_id]["clean_count"] = 0
+                total_video_info_dict[video_id]["other_count"] = 0
                 total_video_info_dict[video_id]["tool_types"] = []
                 for img_value in img_value_list:
                     # print("img_value",img_value)
@@ -150,24 +154,29 @@ class Govern:
                 )  # img_tool_type, img_hygiene_type, total_tool_type, v.v_id 
                     if img_value["hygiene_type"] == "clean":
                         total_video_info_dict[video_id]["clean_count"] += 1
+                    elif img_value["tool_type"] == "비주방도구":
+                        total_video_info_dict[video_id]["other_count"] += 1
                     total_video_info_dict[video_id]["tool_types"].append(img_value["tool_type"])
                 print("tool_types",total_video_info_dict[video_id]["tool_types"])
                 print("max tool type",max(total_video_info_dict[video_id]["tool_types"], key=total_video_info_dict[video_id]["tool_types"].count))
                 total_video_info_dict[video_id]["total_tool_type"] = max(total_video_info_dict[video_id]["tool_types"], key=total_video_info_dict[video_id]["tool_types"].count)
                 print("total_video_tool_type",total_video_info_dict[video_id]["total_tool_type"])
                 # 50보다 크면 정확한 판단으로 봄 
-                clean_per_total = round(total_video_info_dict[video_id]["clean_count"]/total_video_info_dict[video_id]["total_count"],2) * 100
+               
+                
                 if total_video_info_dict[video_id]["total_tool_type"] == "비주방도구":
                     total_video_info_dict[video_id]["total_hygiene_type"] = "판별불가"
-                elif clean_per_total > 50:
-                    total_video_info_dict[video_id]["total_hygiene_type"] = "clean"
                 else:
-                    total_video_info_dict[video_id]["total_hygiene_type"] = "dirty"
+                    clean_per_total =  round(total_video_info_dict[video_id]["clean_count"]/(total_video_info_dict[video_id]["total_count"]-total_video_info_dict[video_id]["other_count"]),2) * 100
+                    if clean_per_total > 50:
+                        total_video_info_dict[video_id]["total_hygiene_type"] = "clean"
+                    else:
+                        total_video_info_dict[video_id]["total_hygiene_type"] = "dirty"
 
-                update_video_value_list.append(
-                    ("관리자 미승인","1111-11-11",total_video_info_dict[video_id]["total_tool_type"],
-                    total_video_info_dict[video_id]["total_hygiene_type"],video_id
-                )) #i.judgement_grade,v.total_tool_type,v.total_hygiene_type,v.v_id
+                    update_video_value_list.append(
+                        ("관리자 미승인","1111-11-11",total_video_info_dict[video_id]["total_tool_type"],
+                        total_video_info_dict[video_id]["total_hygiene_type"],video_id
+                    )) #i.judgement_grade,v.total_tool_type,v.total_hygiene_type,v.v_id
               
             update_image_sql = f"""UPDATE
                 videos v
@@ -199,7 +208,7 @@ class Govern:
             img_file_list = []
 
             try:
-                check_hygiene_url = "http://9b9c-35-185-184-28.ngrok.io"
+                check_hygiene_url = "http://ddda-35-223-229-212.ngrok.io"
                 # print("img_info_list",img_info_list)
                 for img_info in img_info_list:
                     print(img_info["img_path"])

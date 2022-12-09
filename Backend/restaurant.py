@@ -32,7 +32,7 @@ class Restaurant:
     def signup(self,req_data):
         try:
             if not self.check_bz_num(req_data["bz_num"]):
-                return False
+                return (False,"회원가입에 실패했습니다. 사업자 번호를 다시 확인해주세요.")
             req_data["password"] = hashlib.sha1(req_data["password"].encode("utf-8")).hexdigest() 
             field_name_set = tuple(key for key in list(req_data.keys()))
             insert_value_set = tuple(key for key in list(req_data.values()))
