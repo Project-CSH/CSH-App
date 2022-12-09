@@ -293,8 +293,8 @@ def govern_delete_notice():
     req = request.json
     isvisted_value_list = ["0","1"]
     if "title"  in req:
-        if req["title"] in isvisted_value_list  and gov_cls.fix_isvisit(req["is_visited_restaurant"], req["restaurant_id"]):
-            return jsonify({"result":"success","message":"방문 현황을 변경했습니다.","data":gov_cls.notice_list})
+        if req["title"] in isvisted_value_list  and gov_cls.delete_notice(req["title"]):
+            return jsonify({"result":"success","message":"해당 공지를 삭제했습니다.","data":gov_cls.notice_list})
         else:
             return jsonify({"result":"fail","message":"변경되지 않았습니다. 데이터를 다시확인해주세요."})
     else:

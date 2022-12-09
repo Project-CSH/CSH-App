@@ -323,14 +323,17 @@ class Govern:
         except Exception as e:
             print("error fix_isvisit",e)
             return False    
-    def delete_notice(self,add_notice):
+    def delete_notice(self,title):
         try:
             with open("notice.json", "r", encoding="utf-8") as f:
                     self.notice_list = ujson.load(f)
-            self.notice_list.append(add_notice)
-            with open("notice.json", "w", encoding="utf-8") as f:
-                ujson.dump(self.notice_list, f, indent=2, ensure_ascii=False)
-            return True
+            for index, notice in enumerate(self.notice_list[:]):
+                if notice["title"]== title:
+                    del self.notice_list[index]
+                    with open("notice.json", "w", encoding="utf-8") as f:
+                        ujson.dump(self.notice_list, f, indent=2, ensure_ascii=False)
+                    return True
+            return False
         except Exception as e:
             print("error get_notice_list",e)
             return False
