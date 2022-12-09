@@ -285,7 +285,7 @@ def govern_fix_isvisit():
         if req["is_visited_restaurant"] in isvisted_value_list  and gov_cls.fix_isvisit(req["is_visited_restaurant"], req["restaurant_id"]):
             return jsonify({"result":"success","message":"방문 현황을 변경했습니다.","data":gov_cls.restaurant_list})
         else:
-            return jsonify({"result":"fail","message":"데이터 형식을 다시 확인해주세요."})
+            return jsonify({"result":"fail","message":"변경되지 않았습니다. 데이터를 다시확인해주세요."})
     else:
         return jsonify({"result":"fail","message":"올바르지 않은 요청입니다."})
 @app.route("/govern-deleteNotice", methods=["POST"])
@@ -296,7 +296,7 @@ def govern_delete_notice():
         if req["is_visited_restaurant"] in isvisted_value_list  and gov_cls.fix_isvisit(req["is_visited_restaurant"], req["restaurant_id"]):
             return jsonify({"result":"success","message":"방문 현황을 변경했습니다.","data":gov_cls.notice_list})
         else:
-            return jsonify({"result":"fail","message":"데이터 형식을 다시 확인해주세요."})
+            return jsonify({"result":"fail","message":"변경되지 않았습니다. 데이터를 다시확인해주세요."})
     else:
         return jsonify({"result":"fail","message":"올바르지 않은 요청입니다."})
 

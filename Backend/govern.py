@@ -13,6 +13,7 @@ class Govern:
         self.con = None
         self.cursor = None
         self.notice_list =[]
+        self.restaurant_list = []
 
     def get_restaurant_list(self):
         self.dbmysql = DBMysql().set_db("restaurant")
@@ -306,8 +307,16 @@ class Govern:
                             WHERE  
                             i.restaurant_id = %s         
                             """
+            
             if self.cursor.execute(update_fix_isisvisit,(int(is_visited_restaurant), restaurant_id)):
                 self.con.commit()
+                get_restaurant_sql = f"SELECT * FROM infos"
+                self.cursor.execute(get_restaurant_sql)
+                # for item in self.cursor.fetchall():
+
+                # return [[item[0] )]
+                fields = [field_md[0] for field_md in self.cursor.description]
+                self.restaurant_list = [dict(zip(fields,row)) for row in self.cursor.fetchall()]
                 return True
             else:
                 return False 
