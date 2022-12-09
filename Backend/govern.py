@@ -294,7 +294,26 @@ class Govern:
         except Exception as e:
             print("error get_notice_list",e)
             return False
-
+    def fix_isvisit(self,is_visited_restaurant, restaurant_id):
+        try:
+            self.dbmysql = DBMysql().set_db("restaurant")
+            self.con, self.cursor = self.dbmysql.connect()
+            update_fix_isisvisit = f"""
+                            UPDATE
+                            infos i
+                            SET
+                            i.is_visited_restaurant = %s
+                            WHERE  
+                            i.restaurant_id = %s         
+                            """
+            if self.cursor.execute(update_fix_isisvisit,(is_visited_restaurant, restaurant_id)):
+                self.con.commit()
+                return True
+            else:
+                return False 
+        except Exception as e:
+            print("error fix_isvisit",e)
+            return False    
 
 
 if __name__ == "__main__":
