@@ -103,7 +103,7 @@ class Restaurant:
             # video_id 
             # cursor.execute(sql_videos_sql,(video_id, save_video_path, "None", "None",file.filename ,int(rest_id),video_id))
             cursor.execute(sql_videos_sql,(video_id, save_video_path, "판별대기", "판별대기",file.filename ,int(rest_id),save_video_path, "판별대기", "판별대기",file.filename ,int(rest_id)))
-            # self.con.commit()
+            self.con.commit()
             
             if self.video_to_img(vidcap,rest_id,video_id):
                 print("비디오 to 사진 분할 [성공]!")
@@ -114,12 +114,14 @@ class Restaurant:
                 for field_name in list(field_name_set)[1:]:
                     update_field_set += f"{field_name} = VALUES({field_name}),"
                 update_field_set = update_field_set[:-1]
+                print("update_field_set", update_field_set)
                 sql_field_name = f"""{field_name_set}""".replace("\'","")
                 sql_insert_value_format = self.auto_formatter(field_name_set).replace("\'","")
                 # ON DUPLICATE KEY UPDATE executemany시 VALUES로 감싸주기
                 sql_images_sql = f"INSERT INTO images {sql_field_name} VALUES {sql_insert_value_format} ON DUPLICATE KEY UPDATE {update_field_set}" # img_id = VALUES(img_id)"
                 print("sql_images_sql",sql_images_sql)
                 cursor.executemany(sql_images_sql,self.insert_image_values)
+                self.con.commit()
                 cursor.execute("UPDATE infos SET is_check_hygiene = %s, judgement_grade = %s WHERE restaurant_id = %s",(1,"판별대기",rest_id))
                 self.con.commit()
                 result = True        
