@@ -291,12 +291,11 @@ def govern_fix_isvisit():
 @app.route("/govern-deleteNotice", methods=["POST"])
 def govern_delete_notice():
     req = request.json
-    isvisted_value_list = ["0","1"]
-    if "title"  in req:
-        if req["title"] in isvisted_value_list  and gov_cls.delete_notice(req["title"]):
+    if "title" in req: 
+        if gov_cls.delete_notice(req["title"]):
             return jsonify({"result":"success","message":"해당 공지를 삭제했습니다.","data":gov_cls.notice_list})
         else:
-            return jsonify({"result":"fail","message":"변경되지 않았습니다. 데이터를 다시확인해주세요."})
+            return jsonify({"result":"fail","message":"해당 공지를 삭제하지 못했습니다. 데이터를 다시확인해주세요."})
     else:
         return jsonify({"result":"fail","message":"올바르지 않은 요청입니다."})
 

@@ -328,6 +328,7 @@ class Govern:
             with open("notice.json", "r", encoding="utf-8") as f:
                     self.notice_list = ujson.load(f)
             for index, notice in enumerate(self.notice_list[:]):
+                print("notice title",notice["title"])
                 if notice["title"]== title:
                     del self.notice_list[index]
                     with open("notice.json", "w", encoding="utf-8") as f:
