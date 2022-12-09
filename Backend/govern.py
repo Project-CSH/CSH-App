@@ -6,11 +6,13 @@ from collections import defaultdict
 import math
 import traceback
 import requests
+import ujson
 class Govern:
     def __init__(self) -> None:
         self.dbmysql = None
         self.con = None
         self.cursor = None
+        self.notice_list =[]
 
     def get_restaurant_list(self):
         self.dbmysql = DBMysql().set_db("restaurant")
@@ -250,6 +252,7 @@ class Govern:
                 return False
         else:
             return False
+
     def enroll_visit_date(self, date, restaurant_id):
         
         try:
@@ -271,7 +274,26 @@ class Govern:
         except Exception as e:
             print("error enroll_date",e)
             return False
-
+    def get_notice_list(self):
+        try:
+            with open("notice.json", "r", encoding="utf-8") as f:
+                self.notice_list = ujson.load(f)
+            return True
+        except Exception as e:
+            print("error get_notice_list",e)
+            return False
+        
+    def enroll_notice_list(self,add_notice):
+        try:
+            with open("notice.json", "r", encoding="utf-8") as f:
+                    self.notice_list = ujson.load(f)
+            self.notice_list.append(add_notice)
+            with open("notice.json", "w", encoding="utf-8") as f:
+                ujson.dump(self.notice_list, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print("error get_notice_list",e)
+            return False
 
 
 

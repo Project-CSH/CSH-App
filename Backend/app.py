@@ -251,13 +251,30 @@ def fix_hygiene():
     else:
         return jsonify({"result":"fail","message":"변경에 실패했습니다."})
 @app.route("/govern-enrollVisitDate",methods=["POST"])
-def router_enroll_visit_date():
+def govern_enroll_visit_date():
     req = request.json
-    if "date" in req or "restaurant_id" in req:
+    if "date" in req and "restaurant_id" in req:
         if gov_cls.enroll_visit_date(req["date"],req["restaurant_id"]):
             return jsonify({"result":"success","message":f"현장방문대상에 등록했습니다."})
         else:
             return jsonify({"result":"fail","message":"변경되지 않았습니다. 데이터를 다시 확인해주세요."})
+    else:
+        return jsonify({"result":"fail","message":"올바르지 않은 요청입니다."})
+
+@app.route("/govern-noticeList", methods=["GET"])
+def govern_notice_list():
+    if gov_cls.get_notice_list():
+        return jsonify({"result":"success","message":"공지 리스트 가져오기 성공!","data":gov_cls.notice_list})
+    else:
+        return jsonify({"result":"fail","message":"올바르지 않은 요청입니다."})
+@app.route("/govern-enrollNotice", methods=["POST"])
+def govern_enroll_notice():
+    req = request.json
+    if "date"  in req and "title" in req and "content" in req:
+        if gov_cls.enroll_notice_list(req):
+            return jsonify({"result":"success","message":"공지가 등록되었습니다!","data":gov_cls.notice_list})
+        else:
+            return jsonify({"result":"fail","message":"데이터 형식을 다시 확인해주세요."})
     else:
         return jsonify({"result":"fail","message":"올바르지 않은 요청입니다."})
 
