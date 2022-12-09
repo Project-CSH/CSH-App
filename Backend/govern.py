@@ -308,7 +308,7 @@ class Govern:
                             i.restaurant_id = %s         
                             """
             
-            if self.cursor.execute(update_fix_isisvisit,(int(is_visited_restaurant), restaurant_id)):
+            if self.cursor.execute(update_fix_isisvisit,(is_visited_restaurant, restaurant_id)):
                 self.con.commit()
                 get_restaurant_sql = f"SELECT * FROM infos"
                 self.cursor.execute(get_restaurant_sql)
